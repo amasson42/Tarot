@@ -9,79 +9,90 @@ import Foundation
 
 struct TarotGame {
     /// Min and Max number of players
-    static let playerRange = 3..<5
+    static let playerRange = 3...5
     
     private init() {}
 }
 
-enum TarotGameBet: CustomStringConvertible {
-    case fausseDonne
-    case petite
-    case pouce
-    case garde
-    case gardeSans
-    case gardeContre
+enum TarotGameBet: String, CaseIterable, CustomStringConvertible {
+    case fausseDonne = "Fausse Done"
+    case petite = "Petite"
+    case pouce = "Pouce"
+    case garde = "Garde"
+    case gardeSans = "Garde Sans"
+    case gardeContre = "Garde Contre"
     
-    var description: String {
-        switch self {
-        case .fausseDonne:
-            return "Fausse Done"
-        case .petite:
-            return "Petite"
-        case .pouce:
-            return "Pouce"
-        case .garde:
-            return "Garde"
-        case .gardeSans:
-            return "Garde Sans"
-        case .gardeContre:
-            return "Garde Contre"
-        }
-    }
+    var description: String { rawValue }
     
     var pointsFactor: Int {
         switch self {
         case .fausseDonne: return 1
         case .petite: return 1
         case .pouce: return 2
-        case .garde: return 3
-        case .gardeSans: return 4
-        case .gardeContre: return 5
+        case .garde: return 4
+        case .gardeSans: return 8
+        case .gardeContre: return 16
         }
+    }
+    
+    static var bets: [TarotGameBet] {
+        return [.petite, .pouce, .garde, .gardeSans, .gardeContre]
     }
 }
 
-enum TarotGameOverflow: UInt8 {
+enum TarotGameOverflow: UInt8, CaseIterable {
     case p0 = 0
     case p10 = 10
     case p20 = 20
     case p30 = 30
-    case p40 = 40
+    //    case p40 = 40
     
     var value: Int { Int(rawValue) }
 }
 
-enum TarotGameSideGain {
+enum TarotGameSideGain: CaseIterable, CustomStringConvertible {
     case misery
+    case doubleMisery
     case poignee
     case doublePoignee
     case petitAuBout
     case petitAuBouffe
-    case other
+    case bonus
+    case malus
     
     var value: Int {
         switch self {
         case .misery: return 1
+        case .doubleMisery: return 2
         case .poignee: return 1
         case .doublePoignee: return 2
         case .petitAuBout: return 1
         case .petitAuBouffe: return -1
-        case .other: return 1
+        case .bonus: return 1
+        case .malus: return -1
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .misery: return "misère"
+        case .doubleMisery: return "double misère"
+        case .poignee: return "poignée"
+        case .doublePoignee: return "double poignée"
+        case .petitAuBout: return "petit au bout"
+        case .petitAuBouffe: return "petit perdu au bout"
+        case .bonus: return "bonus"
+        case .malus: return "malus"
         }
     }
 }
 
 struct TarotGameScore: Identifiable {
+    struct SideGain: Equatable {
+        let player: Int
+        let gain: TarotGameSideGain
+    }
+    
     /// Identifiable UUID
     let id = UUID()
     
@@ -104,7 +115,7 @@ struct TarotGameScore: Identifiable {
     var bet: TarotGameBet = .petite
     { didSet { updateScores() }}
     /// Side gains
-    var sideGains: [(player: Int, gain: TarotGameSideGain)] = []
+    var sideGains: [SideGain] = []
     { didSet { updateScores() }}
     
     private(set) var scores: [Int] = []
@@ -112,7 +123,7 @@ struct TarotGameScore: Identifiable {
     init(playerCount: Int,
          mainPlayer: Int = 0, secondPlayer: Int? = nil,
          won: Bool = true, overflow: TarotGameOverflow = .p0, bet: TarotGameBet = .petite,
-         sideGains: [(player: Int, gain: TarotGameSideGain)] = []) {
+         sideGains: [SideGain] = []) {
         assert(TarotGame.playerRange.contains(playerCount), "Invalid player count")
         assert(mainPlayer < playerCount)
         if let secondPlayer = secondPlayer {
@@ -187,4 +198,50 @@ struct TarotGameScore: Identifiable {
         scores[player]
     }
     
+    func sideGain(forPlayer player: Int) -> [TarotGameSideGain] {
+        self.sideGains
+            .filter { $0.player == player }
+            .map { $0.gain }
+    }
+    
+}
+
+extension TarotGameScore: CustomStringConvertible {
+    
+    func description(withPlayers players: [String]) -> String {
+        assert(players.count == playerCount)
+        
+        let gameSetupWords = "Partie de \(playerCount) joueurs"
+        
+        let betWords = "\(players[mainPlayer]) \(won ? "gagne" : "perd") une \(bet.description.lowercased()) \(won ? "faite" : "chutée") de \(overflow.value)"
+        
+        let friendWord: String = {
+            if let second = secondPlayer {
+                return "avec \(players[second])"
+            } else {
+                return "seul"
+            }
+        }()
+        
+        let sideGainsWords = sideGains.reduce("") { r, pg in
+            let gainWord: String
+            switch pg.gain {
+            case .misery: gainWord = "a une misère"
+                case .doubleMisery: gainWord = "a une double misère"
+            case .poignee: gainWord = "a une poignée"
+            case .doublePoignee: gainWord = "a une double poignée"
+            case .petitAuBout: gainWord = "a fait le dernier plie avec le petit"
+            case .petitAuBouffe: gainWord = "se fait couper son petit au dernier tour"
+            case .bonus: gainWord = "gagne un bonus"
+            case .malus: gainWord = "prend une penalité"
+            }
+            return r + "\n\(players[pg.player]) \(gainWord)."
+        }
+        
+        return "\(gameSetupWords), \(betWords) \(friendWord).\(sideGainsWords)"
+    }
+    
+    var description: String {
+        return description(withPlayers: (0..<playerCount).map { "j\($0 + 1)" })
+    }
 }
