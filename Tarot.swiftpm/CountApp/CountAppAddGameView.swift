@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// Utility window from Counting App feature
+/// Can create a new TarotGameScore from interfaces inputs and will send the result in the action closure
 struct CountAppAddGameView: View {
     @ObservedObject var gameList: TarotGameList
     var action: (TarotGameScore) -> ()
@@ -367,7 +369,7 @@ struct CountAppAddGameView_Previews: PreviewProvider {
     static let names_3p = ["Adrien", "Guillaume", "Arthur"]
     
     static var previews: some View {
-        CountAppAddGameView(gameList: TarotGameList(players: names_5p),
+        CountAppAddGameView(gameList: TarotGameList(players: names_5p)!,
                             game: TarotGameScore(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
                                 .init(player: 0, gain: .misery),
                                 .init(player: 2, gain: .doublePoignee)

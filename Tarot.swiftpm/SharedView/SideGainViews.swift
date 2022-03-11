@@ -4,21 +4,21 @@ extension TarotGameSideGain: View {
     var body: some View {
         switch self {
         case .misery:
-            return SideGainMiseryView()
+            SideGainMiseryView()
         case .doubleMisery:
-            return SideGainDoubleMiseryView()
+            SideGainDoubleMiseryView()
         case .poignee:
-            return SideGainPoigneeView()
+            SideGainPoigneeView()
         case .doublePoignee:
-            return SideGainDoublePoigneeView()
+            SideGainDoublePoigneeView()
         case .petitAuBout:
-            return SideGainPetitAuBoutView()
+            SideGainPetitAuBoutView()
         case .petitAuBouffe:
-            return SideGainPetitAuBouffeView()
+            SideGainPetitAuBouffeView()
         case .bonus:
-            return SideGainBonusView()
+            SideGainBonusView()
         case .malus:
-            return SideGainMalusView()
+            SideGainMalusView()
         }
     }
 }

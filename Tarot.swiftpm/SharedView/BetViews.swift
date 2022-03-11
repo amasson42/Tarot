@@ -4,17 +4,17 @@ extension TarotGameBet: View {
     var body: some View {
         switch self {
         case .fausseDonne:
-            return BetFausseDonneView()
+            BetFausseDonneView()
         case .petite:
-            return BetPetiteView()
+            BetPetiteView()
         case .pouce:
-            return BetPouceView()
+            BetPouceView()
         case .garde:
-            return BetGardeView()
+            BetGardeView()
         case .gardeSans:
-            return BetGardeSansView()
+            BetGardeSansView()
         case .gardeContre:
-            return BetGardeContreView()
+            BetGardeContreView()
         }
     }
 }

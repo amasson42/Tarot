@@ -15,8 +15,10 @@ class TarotGameList: ObservableObject {
     @Published var scores: [Int]
     private var scoreUpdater: AnyCancellable?
     
-    init(players: [String]) {
-        assert(TarotGame.playerRange.contains(players.count))
+    init?(players: [String]) {
+        guard TarotGame.playerRange.contains(players.count) else {
+            return nil
+        }
         
         self.players = players
         self.gameHistory = []

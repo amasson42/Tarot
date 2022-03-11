@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// Root view for the Couting App feature
+/// Can setup the players, retrieve a previous game and start couting
 struct CountAppView: View {
     
     var exitClosure: (() -> ())?
@@ -22,11 +24,11 @@ struct CountAppView: View {
                         playerInputActive = true
                     }
                     
-                    //#if DEBUG
+                    #if DEBUG
                     Button("[Debug] Add players") {
                         self.playerList = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
                     }
-                    //#endif
+                    #endif
                     
                     VStack {
                         Text("Players")
@@ -39,8 +41,9 @@ struct CountAppView: View {
                         .padding()
                     }
                     
-                    if TarotGame.playerRange.contains(self.playerList.count) {
-                        NavigationLink("Start", destination: CountAppTableView(playerNames: playerList))
+                    if let gameList = TarotGameList(players: playerList) {
+                        NavigationLink("Start", destination: CountAppTableView()
+                                        .environmentObject(gameList))
                     }
                     
                     if let exitClosure = exitClosure {

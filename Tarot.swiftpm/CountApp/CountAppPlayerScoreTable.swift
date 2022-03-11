@@ -7,14 +7,20 @@
 
 import SwiftUI
 
+/// Reusable view from Counting App feature
+/// Display the content of the TarotGameList in parameter
 struct CountAppPlayerScoreTable: View {
     
     @ObservedObject var gameList: TarotGameList
     
-    var cellAction: (Int, Int) -> () = { _, _ in }
+    var cellAction: (Int, Int) -> ()
     
-    private var layout: [GridItem] {
-        [GridItem](repeating: GridItem(), count: gameList.players.count)
+    private let layout: [GridItem]
+    
+    init(gameList: TarotGameList, cellAction: @escaping (Int, Int) -> () = { _, _ in }) {
+        self._gameList = .init(wrappedValue: gameList)
+        self.cellAction = cellAction
+        self.layout = [GridItem](repeating: GridItem(), count: gameList.players.count)
     }
     
     var body: some View {
@@ -110,7 +116,7 @@ struct CountAppPlayerScoreTable: View {
 struct CountAppPlayerScoreTable_Previews: PreviewProvider {
     
     static let listExample0: TarotGameList = {
-        let gameList = TarotGameList(players: ["Arthur", "Guillaume", "Adrien", "Nicolas", "Maman"])
+        let gameList = TarotGameList(players: ["Arthur", "Guillaume", "Adrien", "Nicolas", "Maman"])!
         
         gameList.players.indices.forEach {
             gameList.addFausseDonne(forPlayer: $0)

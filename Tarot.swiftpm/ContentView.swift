@@ -2,8 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        //MenuView()
-        CountAppView()
+        MenuView()
     }
 }
 
@@ -33,21 +32,17 @@ struct MenuView: View {
     }
     
     var body: some View {
-        ZStack {
-            if presentedView == .menu {
-                menuBody
-            }
-            if presentedView == .play {
-                Text("Playing...")
-            }
-            if presentedView == .count {
-                CountAppView(exitClosure: {
-                    self.presentedView = .menu
-                })
-            }
-            if presentedView == .assist {
-                Text("Assisting...")
-            }
+        switch presentedView {
+        case .menu:
+            menuBody
+        case .play:
+            Text("Playing...")
+        case .count:
+            CountAppView(exitClosure: {
+                self.presentedView = .menu
+            })
+        case .assist:
+            Text("Assist...")
         }
     }
 }

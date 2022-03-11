@@ -7,21 +7,14 @@
 
 import SwiftUI
 
-struct CountAppTableView: View { 
+/// Main feature of the Counting App feature
+/// Needs a TarotGameList in environment to display its content and add new games to it
+struct CountAppTableView: View {
     
-    @StateObject private var gameList: TarotGameList
+    @EnvironmentObject private var gameList: TarotGameList
     
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
-    
-    let layout: [GridItem]
-    
-    init(playerNames: [String]) {
-        let tarotGameList = TarotGameList(players: playerNames)
-        
-        self._gameList = .init(wrappedValue: tarotGameList)
-        self.layout = .init(repeating: .init(), count: playerNames.count)
-    }
     
     var body: some View {
         
@@ -94,7 +87,7 @@ struct CountAppTableView_Previews: PreviewProvider {
     static let names = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
     
     static var previews: some View {
-        CountAppTableView(playerNames: names)
+        CountAppTableView()
     }
 }
 
