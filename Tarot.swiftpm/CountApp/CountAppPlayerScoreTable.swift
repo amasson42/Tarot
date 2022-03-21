@@ -26,7 +26,7 @@ struct CountAppPlayerScoreTable: View {
     var body: some View {
         
         LazyVGrid(columns: layout, spacing: 0) {
-            ForEach(gameList.players.indices) { pi in
+            ForEach(gameList.players.indices, id: \.self) { pi in
 //                ScrollView(.horizontal) {
                     Text(gameList.players[pi])
                         .fontWeight(.bold)
@@ -36,7 +36,7 @@ struct CountAppPlayerScoreTable: View {
             }
             
             ForEach(gameList.gameHistory.indices, id: \.self) { gi in
-                ForEach(gameList.players.indices) { pi in
+                ForEach(gameList.players.indices, id: \.self) { pi in
                     
                     Button {
                         cellAction(pi, gi)
@@ -48,7 +48,7 @@ struct CountAppPlayerScoreTable: View {
                 }
             }
             
-            ForEach(gameList.players.indices) { pi in
+            ForEach(gameList.players.indices, id: \.self) { pi in
                 Text("\(gameList.scores[pi])")
                     .fontWeight(.heavy)
                     .lineLimit(1)
@@ -102,7 +102,7 @@ struct CountAppPlayerScoreTable: View {
             
             var body: some View {
                 HStack(spacing: -4) {
-                    ForEach(sideGains.indices) { i in
+                    ForEach(sideGains.indices, id: \.self) { i in
                         sideGains[i]
                             .frame(width: 15, height: 15)
                     }

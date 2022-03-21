@@ -35,32 +35,38 @@ struct CountAppAddGameView: View {
     
     var body: some View {
         VStack {
-            
-            BetPickerView(bet: $bet)
-                .frame(height: 150)
-            
-            if bet != nil {
-                PlayerPickerView(players: gameList.players,
-                                 main: $mainPlayer,
-                                 second: $secondPlayer)
-                
-                if mainPlayer != nil {
-                    ScorePickerView(won: $won, overflow: $overflow)
+            ScrollView(.vertical) {
+                VStack {
                     
-                    if won != nil {
-                        SideGainsView(players: gameList.players,
-                                      sideGains: $sideGains)
+                    BetPickerView(bet: $bet)
+                        .frame(height: 150)
+                    
+                    if bet != nil {
+                        PlayerPickerView(players: gameList.players,
+                                         main: $mainPlayer,
+                                         second: $secondPlayer)
+                        
+                        if mainPlayer != nil {
+                            ScorePickerView(won: $won, overflow: $overflow)
+                            
+                            if won != nil {
+                                SideGainsView(players: gameList.players,
+                                              sideGains: $sideGains)
+                            }
+                            
+                        }
+                        
                     }
                     
+                    ScrollView {
+                        Text(game?.description(withPlayers: gameList.players) ?? "")
+                    }
+                    
+                    Spacer()
+                    
                 }
-                
             }
             
-            ScrollView {
-                Text(game?.description(withPlayers: gameList.players) ?? "")
-            }
-            
-            Spacer()
             HStack {
                 
                 if let game = game {
@@ -75,7 +81,6 @@ struct CountAppAddGameView: View {
                 }
                 
             }.padding()
-            
         }.padding()
     }
     
@@ -127,7 +132,7 @@ struct CountAppAddGameView: View {
             HStack {
                 
                 VStack {
-                    ForEach(players.indices) { pi in
+                    ForEach(players.indices, id: \.self) { pi in
                         
                         Button {
                             main = pi
@@ -143,7 +148,7 @@ struct CountAppAddGameView: View {
                     Text("🤝")
                     
                     VStack {
-                        ForEach(players.indices) { pi in
+                        ForEach(players.indices, id: \.self) { pi in
                             
                             Button {
                                 second = pi
@@ -176,7 +181,7 @@ struct CountAppAddGameView: View {
             let overflow: TarotGameOverflow
         }
         
-        let choices: [Choice] = 
+        let choices: [Choice] =
         TarotGameOverflow.allCases.reversed().map {
             Choice(won: false, overflow: $0)
         } + TarotGameOverflow.allCases.map {
@@ -198,7 +203,7 @@ struct CountAppAddGameView: View {
         var body: some View {
             
             Picker("", selection: $pickerChoice) {
-                ForEach(choices.indices) { i in
+                ForEach(choices.indices, id: \.self) { i in
                     Text("\(choices[i].overflow.value)")
                         .foregroundColor(choices[i].won ? .green : .red)
                         .tag(i as Int?)
@@ -258,7 +263,7 @@ struct CountAppAddGameView: View {
                             .frame(width: 50, height: 50)
                             .padding(3)
                             .background {
-                                Color.accentColor    
+                                Color.accentColor
                                     .opacity(0.7)
                                     .padding(3)
                                     .background(Color.gray)
@@ -277,7 +282,7 @@ struct CountAppAddGameView: View {
                     
                     LazyVGrid(columns: gridLayout) {
                         
-                        ForEach(allGains.indices) { i in
+                        ForEach(allGains.indices, id: \.self) { i in
                             
                             Button {
                                 selectedGain = allGains[i]
@@ -310,7 +315,7 @@ struct CountAppAddGameView: View {
                             selectedGainW
                                 .frame(width: 40, height: 40)
                             
-                            ForEach(players.indices) { i in
+                            ForEach(players.indices, id: \.self) { i in
                                 Button {
                                     
                                     let newGain = TarotGameScore.SideGain(player: i, gain: selectedGainW)

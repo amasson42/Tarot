@@ -14,7 +14,7 @@ struct TarotGame {
     private init() {}
 }
 
-enum TarotGameBet: String, CaseIterable, CustomStringConvertible {
+enum TarotGameBet: String, Codable, CaseIterable, CustomStringConvertible {
     case fausseDonne = "Fausse Done"
     case petite = "Petite"
     case pouce = "Pouce"
@@ -40,7 +40,7 @@ enum TarotGameBet: String, CaseIterable, CustomStringConvertible {
     }
 }
 
-enum TarotGameOverflow: UInt8, CaseIterable {
+enum TarotGameOverflow: UInt8, Codable, CaseIterable {
     case p0 = 0
     case p10 = 10
     case p20 = 20
@@ -50,7 +50,7 @@ enum TarotGameOverflow: UInt8, CaseIterable {
     var value: Int { Int(rawValue) }
 }
 
-enum TarotGameSideGain: CaseIterable, CustomStringConvertible {
+enum TarotGameSideGain: Codable, CaseIterable, CustomStringConvertible {
     case misery
     case doubleMisery
     case poignee
@@ -87,14 +87,11 @@ enum TarotGameSideGain: CaseIterable, CustomStringConvertible {
     }
 }
 
-struct TarotGameScore: Identifiable {
-    struct SideGain: Equatable {
+struct TarotGameScore: Codable {
+    struct SideGain: Codable, Equatable {
         let player: Int
         let gain: TarotGameSideGain
     }
-    
-    /// Identifiable UUID
-    let id = UUID()
     
     /// Number of players in the game
     let playerCount: Int
