@@ -31,6 +31,7 @@ struct CountAppPlayerScoreTable: View {
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.1)
+                    .id(pi)
             }
             
             ForEach(gameList.gameHistory.indices, id: \.self) { gi in
@@ -42,6 +43,7 @@ struct CountAppPlayerScoreTable: View {
                         PlayerScoreView(game: gameList.gameHistory[gi], pi: pi)
                     }
                     .foregroundColor(.primary)
+                    .id(gameList.players.count + gi * gameList.players.count + pi)
                     
                 }
             }
@@ -50,6 +52,7 @@ struct CountAppPlayerScoreTable: View {
                 Text("\(gameList.scores[pi])")
                     .fontWeight(.heavy)
                     .lineLimit(1)
+                    .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
             }
         }
         
