@@ -38,7 +38,7 @@ struct CountAppView: View {
                     }
                     
                     NavigationLink("Games", isActive: $selectOldGameActive) {
-                        SelectOldGameView {
+                        CountAppSelectOldGameView {
                             self.gameList = $0
                             self.playerList = $0.players
                             UserDefaults.standard.countApp.playerNames = $0.players
@@ -50,16 +50,16 @@ struct CountAppView: View {
                         NavigationLink("Start",
                                        destination: CountAppTableView()
                             .environmentObject(gameList)
-                            .navigationTitle(gameList.savedName)
+                            .navigationTitle(gameList.name)
                             .onDisappear {
                                 do {
                                     try gameList.save()
                                 } catch {
-                                    print("error saving game \(gameList.savedName): \(error.localizedDescription)")
+                                    print("error saving game \(gameList.name): \(error.localizedDescription)")
                                 }
                             }
-                        ).hoverEffect()
-                        Text("Game: \(gameList.savedName)")
+                        )
+                        Text("Game: \(gameList.name)")
                     }
                     
                     if let exitClosure = exitClosure {
@@ -89,88 +89,50 @@ struct CountAppView: View {
         .navigationViewStyle(StackNavigationViewStyle())
     }
     
-}
-
-struct PlayerInputView: View {
-    
-    var action: ([String]) -> ()
-    var cancel: () -> ()
-    
-    @State private var players: [String] = [String](repeating: "", count: TarotGame.playerRange.upperBound)
-    
-    var body: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Button {
-                    cancel()
-                } label: {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                        .frame(width: 30, height: 30)
-                }
-                
-            }
+    struct PlayerInputView: View {
+        
+        var action: ([String]) -> ()
+        var cancel: () -> ()
+        
+        @State private var players: [String] = [String](repeating: "", count: TarotGame.playerRange.upperBound)
+        
+        var body: some View {
             VStack {
-                ForEach(0..<players.count, id: \.self) { i in
-                    TextField("Name of player \(i + 1)", text: $players[i])
-                        .disableAutocorrection(true)
-                        .textInputAutocapitalization(.words)
-                }
-            }
-            Button("Done") {
-                let playerList = players.filter { !$0.isEmpty }
-                UserDefaults.standard.countApp.playerNames = players
-                action(playerList)
-            }
-            .padding()
-            .buttonStyle(.bordered)
-        }
-        .onAppear {
-            if let savedPlayers = UserDefaults.standard.countApp.playerNames {
-                players = savedPlayers
-            }
-        }
-    }
-    
-}
-
-struct SelectOldGameView: View {
-    
-    var action: (TarotGameList) -> () = { _ in }
-    var cancel: () -> () = {}
-    
-    @State var savedGames: [String] = []
-    
-    var body: some View {
-        List {
-            ForEach(savedGames.indices, id: \.self) { gameIndex in
-                let gameName = savedGames[gameIndex]
-                Button {
-                    do {
-                        let game = try TarotGameList.loadGame(named: gameName)
-                        action(game)
-                    } catch {
-                        print("error loading game \(gameName): \(error.localizedDescription)")
+                HStack {
+                    Spacer()
+                    Button {
+                        cancel()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.black)
+                            .frame(width: 30, height: 30)
                     }
-                } label: {
-                    Text(gameName)
+                    
                 }
-            }
-            .onDelete { indices in
-                for index in indices {
-                    do {
-                        try TarotGameList.deleteGame(named: savedGames[index])
-                    } catch {
-                        print("error deleting game \(savedGames[index]): \(error.localizedDescription)")
+                VStack {
+                    ForEach(0..<players.count, id: \.self) { i in
+                        TextField("Name of player \(i + 1)", text: $players[i])
+                            .disableAutocorrection(true)
+                            .textInputAutocapitalization(.words)
                     }
                 }
-                savedGames.remove(atOffsets: indices)
+                Button("Done") {
+                    let playerList = players.filter { !$0.isEmpty }
+                    UserDefaults.standard.countApp.playerNames = players
+                    action(playerList)
+                }
+                .padding()
+                .buttonStyle(.bordered)
+            }
+            .onAppear {
+                if let savedPlayers = UserDefaults.standard.countApp.playerNames {
+                    players = savedPlayers
+                    let missingPlaces = max(0, TarotGame.playerRange.upperBound - players.count)
+                    players.append(contentsOf: [String](repeating: "", count: missingPlaces))
+                }
             }
         }
-        .onAppear {
-            savedGames = TarotGameList.listGames()
-        }
+        
     }
 }
 
