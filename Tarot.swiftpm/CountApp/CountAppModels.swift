@@ -149,4 +149,15 @@ extension TarotGameList: Codable {
         try saveData.write(to: fileUrl)
     }
     
+    static func deleteGame(named name: String) throws {
+        let fileUrl = savingDirectory.appendingPathComponent(name)
+        try FileManager.default.removeItem(at: fileUrl)
+    }
+    
+    static func renameGame(from oldName: String, to newName: String) throws {
+        let oldUrl = savingDirectory.appendingPathComponent(oldName)
+        let newUrl = savingDirectory.appendingPathComponent(newName)
+        try FileManager.default.moveItem(at: oldUrl, to: newUrl)
+    }
+    
 }

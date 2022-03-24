@@ -29,13 +29,12 @@ struct CountAppView: View {
                     
                     VStack {
                         Text("Players")
-                        VStack {
+                        HStack {
                             ForEach(playerList.indices, id: \.self) { i in
                                 Text(playerList[i])
                             }
                         }
                         .background(Color.gray.opacity(0.3))
-                        .padding()
                     }
                     
                     NavigationLink("Games", isActive: $selectOldGameActive) {
@@ -56,17 +55,15 @@ struct CountAppView: View {
                                 do {
                                     try gameList.save()
                                 } catch {
-                                    print(error.localizedDescription)
+                                    print("error saving game \(gameList.savedName): \(error.localizedDescription)")
                                 }
                             }
-                        )
+                        ).hoverEffect()
                         Text("Game: \(gameList.savedName)")
                     }
                     
                     if let exitClosure = exitClosure {
-                        Button("Exit") {
-                            exitClosure()
-                        }
+                        Button("Exit", action: exitClosure)
                     }
                     
                 }
@@ -83,7 +80,7 @@ struct CountAppView: View {
                     }
                     .background(Color.secondary.opacity(0.9))
                     .padding()
-
+                    
                 }
                 
             }
@@ -105,7 +102,7 @@ struct PlayerInputView: View {
         VStack {
             HStack {
                 Spacer()
-                Button { 
+                Button {
                     cancel()
                 } label: {
                     Image(systemName: "xmark")
@@ -146,13 +143,29 @@ struct SelectOldGameView: View {
     @State var savedGames: [String] = []
     
     var body: some View {
-        List(savedGames, id: \.self) { gameName in
-            Button {
-                if let game = try? TarotGameList.loadGame(named: gameName) {
-                    action(game)
+        List {
+            ForEach(savedGames.indices, id: \.self) { gameIndex in
+                let gameName = savedGames[gameIndex]
+                Button {
+                    do {
+                        let game = try TarotGameList.loadGame(named: gameName)
+                        action(game)
+                    } catch {
+                        print("error loading game \(gameName): \(error.localizedDescription)")
+                    }
+                } label: {
+                    Text(gameName)
                 }
-            } label: {
-                Text(gameName)
+            }
+            .onDelete { indices in
+                for index in indices {
+                    do {
+                        try TarotGameList.deleteGame(named: savedGames[index])
+                    } catch {
+                        print("error deleting game \(savedGames[index]): \(error.localizedDescription)")
+                    }
+                }
+                savedGames.remove(atOffsets: indices)
             }
         }
         .onAppear {

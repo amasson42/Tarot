@@ -27,12 +27,10 @@ struct CountAppPlayerScoreTable: View {
         
         LazyVGrid(columns: layout, spacing: 0) {
             ForEach(gameList.players.indices, id: \.self) { pi in
-//                ScrollView(.horizontal) {
-                    Text(gameList.players[pi])
-                        .fontWeight(.bold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.1)
-//                }
+                Text(gameList.players[pi])
+                    .fontWeight(.bold)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
             }
             
             ForEach(gameList.gameHistory.indices, id: \.self) { gi in
@@ -79,9 +77,9 @@ struct CountAppPlayerScoreTable: View {
                             Text("\(score)")
                                 .lineLimit(1)
                                 .background(Color.black
-                                                .clipShape(Capsule())
-                                                .opacity(0.3)
-                                                .blur(radius: 3))
+                                    .clipShape(Capsule())
+                                    .opacity(0.3)
+                                    .blur(radius: 3))
                         }
                     } else {
                         Text("\(score)")
