@@ -1,10 +1,3 @@
-//
-//  CountAppTableView.swift
-//  Tarot
-//
-//  Created by Giantwow on 27/12/2021.
-//
-
 import SwiftUI
 
 /// Reusable view from Counting App feature
@@ -25,7 +18,36 @@ struct CountAppPlayerScoreTable: View {
     
     var body: some View {
         
-        LazyVGrid(columns: layout, spacing: 0) {
+        LazyVGrid(columns: layout, spacing: 0, pinnedViews: .sectionHeaders) {
+            Section(header: header) {
+                
+                ForEach(gameList.gameHistory.indices, id: \.self) { gi in
+                    ForEach(gameList.players.indices, id: \.self) { pi in
+                        
+                        Button {
+                            cellAction(pi, gi)
+                        } label: {
+                            PlayerScoreView(game: gameList.gameHistory[gi], pi: pi)
+                        }
+                        .foregroundColor(.primary)
+                        .id(gameList.players.count + gi * gameList.players.count + pi)
+                        
+                    }
+                }
+                
+                ForEach(gameList.players.indices, id: \.self) { pi in
+                    Text("\(gameList.scores[pi])")
+                        .fontWeight(.heavy)
+                        .lineLimit(1)
+                        .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
+                }
+            }
+        }
+        
+    }
+    
+    @ViewBuilder var header: some View {
+        HStack {
             ForEach(gameList.players.indices, id: \.self) { pi in
                 Text(gameList.players[pi])
                     .fontWeight(.bold)
@@ -33,29 +55,9 @@ struct CountAppPlayerScoreTable: View {
                     .minimumScaleFactor(0.1)
                     .id(pi)
             }
-            
-            ForEach(gameList.gameHistory.indices, id: \.self) { gi in
-                ForEach(gameList.players.indices, id: \.self) { pi in
-                    
-                    Button {
-                        cellAction(pi, gi)
-                    } label: {
-                        PlayerScoreView(game: gameList.gameHistory[gi], pi: pi)
-                    }
-                    .foregroundColor(.primary)
-                    .id(gameList.players.count + gi * gameList.players.count + pi)
-                    
-                }
-            }
-            
-            ForEach(gameList.players.indices, id: \.self) { pi in
-                Text("\(gameList.scores[pi])")
-                    .fontWeight(.heavy)
-                    .lineLimit(1)
-                    .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
-            }
+            .frame(maxWidth: .infinity)
         }
-        
+        .padding(.bottom)
     }
     
     struct PlayerScoreView: View {

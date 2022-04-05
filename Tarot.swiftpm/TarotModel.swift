@@ -1,10 +1,3 @@
-//
-//  TarotModel.swift
-//  Tarot
-//
-//  Created by Giantwow on 27/12/2021.
-//
-
 import Foundation
 
 struct TarotGame {

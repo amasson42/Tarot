@@ -87,6 +87,7 @@ struct CountAppAddGameView: View {
     // MARK: BetPickerView
     struct BetPickerView: View {
         @Binding var bet: TarotGameBet?
+        @Namespace private var betAnimation
         
         var body: some View {
             if let curBet = bet {
@@ -97,6 +98,7 @@ struct CountAppAddGameView: View {
                 } label: {
                     curBet
                         .scaledToFit()
+                        .matchedGeometryEffect(id: curBet, in: betAnimation)
                 }
             } else {
                 HStack {
@@ -110,6 +112,7 @@ struct CountAppAddGameView: View {
                             VStack {
                                 bi
                                     .frame(height: 40)
+                                    .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
                                 Text("\(bi.description)")
                                     .minimumScaleFactor(0.1)
                             }

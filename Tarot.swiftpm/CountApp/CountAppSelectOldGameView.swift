@@ -1,10 +1,3 @@
-//
-//  SwiftUIView.swift
-//  
-//
-//  Created by Giantwow on 24/03/2022.
-//
-
 import SwiftUI
 
 struct CountAppSelectOldGameView: View {
@@ -82,12 +75,16 @@ struct CountAppSelectOldGameView_Previews: PreviewProvider {
     
     static var previews: some View {
         VStack(spacing: 10) {
+#if DEBUG
             CountAppTarotGameListHeaderView(header: .example0)
                 .border(.black)
             CountAppTarotGameListHeaderView(header: .example1)
                 .border(.black)
             CountAppTarotGameListHeaderView(header: .example2)
                 .border(.black)
+#else
+            CountAppSelectOldGameView()
+#endif
         }
     }
 }

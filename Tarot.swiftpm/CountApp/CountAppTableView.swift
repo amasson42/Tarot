@@ -1,10 +1,3 @@
-//
-//  CountAppTableView.swift
-//  Tarot
-//
-//  Created by Giantwow on 27/12/2021.
-//
-
 import SwiftUI
 
 /// Main feature of the Counting App feature
@@ -20,7 +13,7 @@ struct CountAppTableView: View {
         
         ZStack {
             
-            Group {
+            VStack {
                 // Players table
                 ScrollView {
                     CountAppPlayerScoreTable(gameList: gameList) {
@@ -28,17 +21,15 @@ struct CountAppTableView: View {
                         inputGameIndex = $1
                     }
                 }
+                .background(Color.brown.opacity(0.7))
                 
                 // Add game button
-                VStack {
+                HStack {
                     Spacer()
-                    HStack {
-                        Spacer()
-                        Button("Add game") {
-                            showInputGame = true
-                        }
-                        .padding()
+                    Button("Add game") {
+                        showInputGame = true
                     }
+                    .padding()
                 }
             }
             .padding()
@@ -47,37 +38,36 @@ struct CountAppTableView: View {
             
             if showInputGame {
                 
-                if let gi = inputGameIndex {
-                    
-                    CountAppAddGameView(gameList: gameList,
-                                        game: gameList.gameHistory[gi]) { game in
-                        gameList.gameHistory[gi] = game
-                        showInputGame = false
-                        inputGameIndex = nil
-                    } cancel: { 
-                        showInputGame = false
-                        inputGameIndex = nil
+                Group {
+                    if let gi = inputGameIndex {
+                        CountAppAddGameView(gameList: gameList,
+                                            game: gameList.gameHistory[gi]) { game in
+                            gameList.gameHistory[gi] = game
+                            showInputGame = false
+                            inputGameIndex = nil
+                        } cancel: {
+                            showInputGame = false
+                            inputGameIndex = nil
+                        }
+                    } else {
+                        CountAppAddGameView(gameList: gameList) { game in
+                            gameList.gameHistory.append(game)
+                            showInputGame = false
+                            inputGameIndex = nil
+                        } cancel: {
+                            showInputGame = false
+                            inputGameIndex = nil
+                        }
                     }
-                    .opacity(0.7)
-                    .padding()
-                    
-                } else {
-                    CountAppAddGameView(gameList: gameList) { game in
-                        gameList.gameHistory.append(game)
-                        showInputGame = false
-                        inputGameIndex = nil
-                    } cancel: {
-                        showInputGame = false
-                        inputGameIndex = nil
-                    }
-                    .opacity(0.7)
-                    .padding()
-                    
                 }
+                .opacity(0.7)
+                .padding()
+                
                 
             }
             
         }
+        .background(GrassBackground().blur(radius: 1))
         
     }
 }
@@ -88,6 +78,7 @@ struct CountAppTableView_Previews: PreviewProvider {
     
     static var previews: some View {
         CountAppTableView()
+            .environmentObject(TarotGameList(players: names)!)
     }
 }
 

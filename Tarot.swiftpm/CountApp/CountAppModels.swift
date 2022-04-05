@@ -1,12 +1,5 @@
-//
-//  CountModels.swift
-//  Tarot
-//
-//  Created by Giantwow on 27/12/2021.
-//
-
 import Combine
-import SwiftUI
+import Foundation
 
 final class TarotGameList: ObservableObject, Identifiable {
     

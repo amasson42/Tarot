@@ -1,10 +1,3 @@
-//
-//  CountAppView.swift
-//  Tarot
-//
-//  Created by Giantwow on 27/12/2021.
-//
-
 import SwiftUI
 
 /// Root view for the Couting App feature
@@ -51,6 +44,7 @@ struct CountAppView: View {
                                        destination: CountAppTableView()
                             .environmentObject(gameList)
                             .navigationTitle(gameList.name)
+                            .navigationBarHidden(true)
                             .onDisappear {
                                 do {
                                     try gameList.save()
@@ -85,6 +79,8 @@ struct CountAppView: View {
                 
             }
             .navigationTitle("Player Setup")
+            .navigationBarHidden(true)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
