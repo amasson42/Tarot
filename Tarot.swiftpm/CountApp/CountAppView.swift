@@ -25,6 +25,10 @@ struct CountAppView: View {
                         HStack {
                             ForEach(playerList.indices, id: \.self) { i in
                                 Text(playerList[i])
+                                    .lineLimit(1)
+                                    .frame(height: 20)
+                                    .playerNameBox(active: false)
+                                    .minimumScaleFactor(0.01)
                             }
                         }
                         .background(Color.gray.opacity(0.3))
@@ -108,8 +112,10 @@ struct CountAppView: View {
                 VStack {
                     ForEach(0..<players.count, id: \.self) { i in
                         TextField("Name of player \(i + 1)", text: $players[i])
+                            .playerNameBox(active: false)
                             .disableAutocorrection(true)
                             .textInputAutocapitalization(.words)
+                            .padding(.horizontal)
                     }
                 }
                 Button("Done") {
