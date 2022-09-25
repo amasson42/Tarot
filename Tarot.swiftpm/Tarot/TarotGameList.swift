@@ -123,8 +123,9 @@ extension TarotGameList: Codable {
     }
     
     /// A light version of the game list. load less data than the full gamelist
-    struct Header {
+    struct Header: Identifiable {
         let file: URL
+        let id: UUID
         let name: String
         let date: Date
         let scores: [(playerName: String, score: Int)]
@@ -138,6 +139,7 @@ extension TarotGameList: Codable {
             }
             let gameList = try JSONDecoder().decode(TarotGameList.self, from: fileData)
             
+            self.id = gameList.id
             self.name = gameList.name
             self.date = gameList.createdDate
             self.scores = zip(gameList.players, gameList.scores).map {
@@ -156,6 +158,7 @@ extension TarotGameList: Codable {
         
         #if DEBUG
         private init(file: URL, name: String, date: Date, scores: [(String, Int)]) {
+            self.id = UUID()
             (self.file, self.name, self.date, self.scores) = (file, name, date, scores)
         }
         

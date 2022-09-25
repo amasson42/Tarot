@@ -2,8 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-//        MenuView()
-        CountAppView {}
+        MenuView()
     }
 }
 
@@ -11,23 +10,23 @@ struct MenuView: View {
     
     enum PresentView {
         case menu
-        case play
+        case generic
         case count
-        case assist
+        case sept
     }
     
     @State private var presentedView: PresentView = .menu
     
     @ViewBuilder var menuBody: some View {
         VStack {
-            Button("Play") {
-                presentedView = .play
+            Button("Generic") {
+                presentedView = .generic
             }
-            Button("Count") {
+            Button("Tarot") {
                 presentedView = .count
             }
-            Button("Assist") {
-                presentedView = .assist
+            Button("Sept et demi") {
+                presentedView = .sept
             }
         }
     }
@@ -36,14 +35,16 @@ struct MenuView: View {
         switch presentedView {
         case .menu:
             menuBody
-        case .play:
-            Text("Playing...")
-        case .count:
-            CountAppView(exitClosure: {
+        case .generic:
+            GenericCountView(exitClosure: {
                 self.presentedView = .menu
             })
-        case .assist:
-            Text("Assist...")
+        case .count:
+            TarotCountView(exitClosure: {
+                self.presentedView = .menu
+            })
+        case .sept:
+            Text("Let's play !")
         }
     }
 }

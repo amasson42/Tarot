@@ -16,9 +16,9 @@ struct GrassBackground: View {
                 ForEach(0 ..< blockCount.width * blockCount.height, id: \.self) { blockIndex in
                     GeometryReader { proxy in
                         VStack {
-                            ForEach(0..<2) { i in
+                            ForEach(0..<2, id: \.self) { _ in
                                 HStack {
-                                    ForEach(0..<6) { i in
+                                    ForEach(0..<6, id: \.self) { _ in
                                         Ellipse()
                                             .foregroundColor(greenLight.opacity(0.3))
                                             .scaleEffect(x: 0.6, y: 0.8)

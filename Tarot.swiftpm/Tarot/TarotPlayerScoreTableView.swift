@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Reusable view from Counting App feature
 /// Display the content of the TarotGameList in parameter
-struct CountAppPlayerScoreTable: View {
+struct TarotPlayerScoreTableView: View {
     
     @ObservedObject var gameList: TarotGameList
     
@@ -116,7 +116,7 @@ struct CountAppPlayerScoreTable: View {
     }
 }
 
-struct CountAppPlayerScoreTable_Previews: PreviewProvider {
+struct TarotPlayerScoreTableView_Previews: PreviewProvider {
     
     static let listExample0: TarotGameList = {
         let gameList = TarotGameList(players: ["Arthur", "Guillaume", "Adrien", "Nicolas", "Maman"])!
@@ -137,6 +137,6 @@ struct CountAppPlayerScoreTable_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        CountAppPlayerScoreTable(gameList: listExample0)
+        TarotPlayerScoreTableView(gameList: listExample0)
     }
 }

@@ -12,6 +12,11 @@ struct ShaderView: View {
     
     func makeScene(size: CGSize) -> SKScene {
         let shaderNodeName = "shader"
+        
+        func makeShader() -> SKShader {
+            SKShader(source: source, uniforms: uniforms, attributes: attributes)
+        }
+        
         func makeShaderNode(shader: SKShader) -> SKNode {
             let sprite = SKSpriteNode(texture: nil, size: size)
             sprite.name = shaderNodeName
@@ -19,18 +24,31 @@ struct ShaderView: View {
             sprite.color = .white
             sprite.position = CGPoint(x: size.width / 2, y: size.height / 2)
             return sprite
+            //            let shape = SKShapeNode(ellipseIn: CGRect(origin: .zero, size: size))
+            //            shape.name = shaderNodeName
+            //            shape.fillShader = shader
+            //            shape.fillColor = .white
+            //            shape.strokeColor = .clear
+            //            return shape
         }
         
         if let scene = self.scene,
-           let shaderNode = scene.childNode(withName: shaderNodeName) as? SKSpriteNode,
-           let shader = shaderNode.shader {
+           let shaderNode = scene.childNode(withName: shaderNodeName) {
+            let shader: SKShader
+            if let spriteNode = shaderNode as? SKSpriteNode {
+                shader = spriteNode.shader ?? makeShader()
+            } else if let shapeNode = shaderNode as? SKShapeNode {
+                shader = shapeNode.fillShader ?? makeShader()
+            } else {
+                shader = makeShader()
+            }
             scene.size = size
             shaderNode.removeFromParent()
             scene.addChild(makeShaderNode(shader: shader))
             return scene
         } else {
             let scene = SKScene(size: size)
-            let shader = SKShader(source: source, uniforms: uniforms, attributes: attributes)
+            let shader = makeShader()
             scene.addChild(makeShaderNode(shader: shader))
             DispatchQueue.main.async {
                 self.scene = scene
@@ -135,8 +153,22 @@ extension SKUniform {
 struct ShaderView_Previews: PreviewProvider {
     static var previews: some View {
         ShaderView(source: """
+        
+        // sampler2D u_texture; A sampler associated with the texture used to render the node.
+        // float u_time; The elapsed time in the simulation.
+        
+        // float u_path_length; Provided only when the shader is attached to an SKShapeNode object’s strokeShader property. This value represents the total length of the path, in points.
+        
+        // vec2 v_tex_coord; The coordinates used to access the texture. These coordinates are normalized so that the point (0.0,0.0) is in the bottom-left corner of the texture.
+        
+        // vec4 v_color_mix; The premultiplied color value for the node being rendered.
+        
+        // float v_path_distance; Provided only when the shader is attached to an SKShapeNode object’s strokeShader property. This value represents the distance along the path in points.
+        
+        // vec4 SKDefaultShading(); A function that provides the default behavior used by SpriteKit.
+        
         void main() {
-            gl_FragColor = vec4(1, 0, 1, 1);
+            // gl_FragColor = vec4(v_tex_coord.x, v_tex_coord.y, 0, 1);
         }
         """)
         .padding()

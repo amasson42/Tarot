@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Utility window from Counting App feature
 /// Can create a new TarotGameScore from interfaces inputs and will send the result in the action closure
-struct CountAppAddGameView: View {
+struct TarotAddGameView: View {
     @ObservedObject var gameList: TarotGameList
     var action: (TarotGameScore) -> ()
     var cancel: () -> ()
@@ -90,39 +90,30 @@ struct CountAppAddGameView: View {
         @Namespace private var betAnimation
         
         var body: some View {
-            if let curBet = bet {
-                Button {
-                    withAnimation {
-                        bet = nil
-                    }
-                } label: {
-                    curBet
-                        .scaledToFit()
-                        .matchedGeometryEffect(id: curBet, in: betAnimation)
-                }
-            } else {
-                HStack {
-                    ForEach(TarotGameBet.bets,
-                            id: \.hashValue) { bi in
-                        Button {
-                            withAnimation {
-                                bet = bi
-                            }
-                        } label: {
-                            VStack {
-                                bi
-                                    .frame(height: 40)
-                                    .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
-                                Text("\(bi.description)")
-                                    .minimumScaleFactor(0.1)
+            GeometryReader { proxy in
+                VStack {
+                    HStack(spacing: 0) {
+                        ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
+                            Button {
+                                withAnimation {
+                                    bet = bi
+                                }
+                            } label: {
+                                VStack {
+                                    bi
+                                        .frame(height: 50)
+                                        .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
+                                }
+                                .frame(width: proxy.size.width / CGFloat(TarotGameBet.bets.count), height: 80)
+                                .betSelector(bet: bi, selected: bi == bet)
                             }
                         }
-                        .frame(height: 60)
-                        .buttonStyle(.automatic)
                     }
+                    Text("\(bet?.description ?? "")")
                 }
-            }
+            } // Geometry Reader
         }
+        
     }
     
     // MARK: PlayerPickerView
@@ -141,8 +132,10 @@ struct CountAppAddGameView: View {
                             main = pi
                         } label: {
                             Text("\(players[pi])")
+                                .foregroundColor(.black)
                         }
                         .disabled(main == pi)
+                        .playerNameBox(active: main == pi)
                         
                     }
                 }
@@ -157,13 +150,12 @@ struct CountAppAddGameView: View {
                                 second = pi
                             } label: {
                                 Text("\(players[pi])")
+                                    .foregroundColor(.black)
                             }
                             .disabled(second == pi)
+                            .playerNameBox(active: second == pi)
                             
                         }
-                    }
-                    .onChange(of: main) { _ in
-                        second = nil
                     }
                     
                 }
@@ -178,13 +170,14 @@ struct CountAppAddGameView: View {
         @Binding var overflow: TarotGameOverflow?
         
         @State private var pickerChoice: Int?
+        @State private var sliderChoice: Int = choices.count / 2
         
         struct Choice: Equatable {
             let won: Bool
             let overflow: TarotGameOverflow
         }
         
-        let choices: [Choice] =
+        static let choices: [Choice] =
         TarotGameOverflow.allCases.reversed().map {
             Choice(won: false, overflow: $0)
         } + TarotGameOverflow.allCases.map {
@@ -198,31 +191,33 @@ struct CountAppAddGameView: View {
             if let wonW = won.wrappedValue,
                let overflowW = overflow.wrappedValue {
                 
-                self._pickerChoice = State(initialValue: choices.firstIndex(of: Choice(won: wonW, overflow: overflowW)))
+                self._pickerChoice = State(initialValue: Self.choices.firstIndex(of: Choice(won: wonW, overflow: overflowW)))
             }
             
         }
         
         var body: some View {
             
-            Picker("", selection: $pickerChoice) {
-                ForEach(choices.indices, id: \.self) { i in
-                    Text("\(choices[i].overflow.value)")
-                        .foregroundColor(choices[i].won ? .green : .red)
-                        .tag(i as Int?)
+            VStack {
+                
+                Picker("", selection: $pickerChoice) {
+                    ForEach(Self.choices.indices, id: \.self) { i in
+                        Text("\(Self.choices[i].overflow.value)")
+                            .foregroundColor(Self.choices[i].won ? .green : .red)
+                            .tag(i as Int?)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .onChange(of: pickerChoice) { i in
+                    if let i = i {
+                        won = Self.choices[i].won
+                        overflow = Self.choices[i].overflow
+                    } else {
+                        won = nil
+                        overflow = nil
+                    }
                 }
             }
-            .pickerStyle(.segmented)
-            .onChange(of: pickerChoice) { i in
-                if let i = i {
-                    won = choices[i].won
-                    overflow = choices[i].overflow
-                } else {
-                    won = nil
-                    overflow = nil
-                }
-            }
-            
         }
     }
     
@@ -241,8 +236,6 @@ struct CountAppAddGameView: View {
         var body: some View {
             
             VStack {
-                
-                Spacer()
                 
                 HStack {
                     ForEach(sideGains.indices, id: \.self) { i in
@@ -370,14 +363,14 @@ struct CountAppAddGameView: View {
     }
 }
 
-struct CountAppAddGameView_Previews: PreviewProvider {
+struct TarotAddGameView_Previews: PreviewProvider {
     
     static let names_5p = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
     
     static let names_3p = ["Adrien", "Guillaume", "Arthur"]
     
     static var previews: some View {
-        CountAppAddGameView(gameList: TarotGameList(players: names_5p)!,
+        TarotAddGameView(gameList: TarotGameList(players: names_5p)!,
                             game: TarotGameScore(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
                                 .init(player: 0, gain: .misery),
                                 .init(player: 2, gain: .doublePoignee)
@@ -405,7 +398,7 @@ struct CountAppAddGameSideGainsView_Previews: PreviewProvider {
         ]
         
         var body: some View {
-            CountAppAddGameView.SideGainsView(players: names_5p, sideGains: $sideGains)
+            TarotAddGameView.SideGainsView(players: names_5p, sideGains: $sideGains)
                 .padding()
         }
     }

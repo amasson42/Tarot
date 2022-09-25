@@ -2,12 +2,13 @@ import SwiftUI
 
 /// Main feature of the Counting App feature
 /// Needs a TarotGameList in environment to display its content and add new games to it
-struct CountAppTableView: View {
+struct TarotTableView: View {
     
     @EnvironmentObject private var gameList: TarotGameList
     
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
+    @State private var showFausseDonePanel: Bool = false
     
     var body: some View {
         
@@ -16,7 +17,7 @@ struct CountAppTableView: View {
             VStack {
                 // Players table
                 ScrollView {
-                    CountAppPlayerScoreTable(gameList: gameList) {
+                    TarotPlayerScoreTableView(gameList: gameList) {
                         showInputGame = true
                         inputGameIndex = $1
                     }
@@ -26,10 +27,41 @@ struct CountAppTableView: View {
                 // Add game button
                 HStack {
                     Spacer()
+                    
+                    if showFausseDonePanel {
+                        HStack(alignment: .top) {
+                            VStack {
+                                ForEach(gameList.players.indices, id: \.self) { index in
+                                    Button("\(gameList.players[index])") {
+                                        gameList.addFausseDonne(forPlayer: index)
+                                        withAnimation {
+                                            showFausseDonePanel = false
+                                        }
+                                    }
+                                }
+                            }
+                            Button {
+                                withAnimation {
+                                    showFausseDonePanel = false
+                                }
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                        .border(.gray, width: 2)
+                    } else {
+                        Button("Fausse Done") {
+                            withAnimation {
+                                showFausseDonePanel = true
+                            }
+                        }
+                        .tarotButton()
+                    }
                     Button("Add game") {
                         showInputGame = true
                     }
-                    .padding()
+                    .tarotButton()
                 }
             }
             .padding()
@@ -40,20 +72,22 @@ struct CountAppTableView: View {
                 
                 Group {
                     if let gi = inputGameIndex {
-                        CountAppAddGameView(gameList: gameList,
+                        TarotAddGameView(gameList: gameList,
                                             game: gameList.gameHistory[gi]) { game in
                             gameList.gameHistory[gi] = game
                             showInputGame = false
                             inputGameIndex = nil
+                            try? gameList.save()
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
                         }
                     } else {
-                        CountAppAddGameView(gameList: gameList) { game in
+                        TarotAddGameView(gameList: gameList) { game in
                             gameList.gameHistory.append(game)
                             showInputGame = false
                             inputGameIndex = nil
+                            try? gameList.save()
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
@@ -63,7 +97,6 @@ struct CountAppTableView: View {
                 .opacity(0.7)
                 .padding()
                 
-                
             }
             
         }
@@ -72,12 +105,12 @@ struct CountAppTableView: View {
     }
 }
 
-struct CountAppTableView_Previews: PreviewProvider {
+struct TarotTableView_Previews: PreviewProvider {
     
     static let names = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
     
     static var previews: some View {
-        CountAppTableView()
+        TarotTableView()
             .environmentObject(TarotGameList(players: names)!)
     }
 }

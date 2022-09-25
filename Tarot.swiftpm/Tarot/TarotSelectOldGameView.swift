@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct CountAppSelectOldGameView: View {
+struct TarotSelectOldGameView: View {
     
     var action: (TarotGameList) -> () = { _ in }
     var cancel: () -> () = {}
@@ -9,8 +9,7 @@ struct CountAppSelectOldGameView: View {
     
     var body: some View {
         List {
-            ForEach(savedGames.indices, id: \.self) { gameIndex in
-                let savedGame = savedGames[gameIndex]
+            ForEach(savedGames) { savedGame in
                 Button {
                     do {
                         let game = try savedGame.load()
@@ -19,7 +18,7 @@ struct CountAppSelectOldGameView: View {
                         print("error loading game \(savedGame.name): \(error.localizedDescription)")
                     }
                 } label: {
-                    CountAppTarotGameListHeaderView(header: savedGame)
+                    TarotGameListHeaderView(header: savedGame)
                 }
             }
             .onDelete { indices in
@@ -39,7 +38,7 @@ struct CountAppSelectOldGameView: View {
     }
 }
 
-struct CountAppTarotGameListHeaderView: View {
+struct TarotGameListHeaderView: View {
     
     let header: TarotGameList.Header
     
@@ -71,20 +70,8 @@ struct CountAppTarotGameListHeaderView: View {
     }
 }
 
-struct CountAppSelectOldGameView_Previews: PreviewProvider {
-    
+struct TarotSelectOldGameView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack(spacing: 10) {
-#if DEBUG
-            CountAppTarotGameListHeaderView(header: .example0)
-                .border(.black)
-            CountAppTarotGameListHeaderView(header: .example1)
-                .border(.black)
-            CountAppTarotGameListHeaderView(header: .example2)
-                .border(.black)
-#else
-            CountAppSelectOldGameView()
-#endif
-        }
+        TarotSelectOldGameView()
     }
 }

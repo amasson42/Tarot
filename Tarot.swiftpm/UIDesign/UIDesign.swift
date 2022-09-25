@@ -34,9 +34,61 @@ struct PlayerNameBox: ViewModifier {
     
 }
 
+struct BetSelector: ViewModifier {
+    let bet: TarotGameBet
+    func body(content: Content) -> some View {
+        switch bet {
+        case .petite:
+            return content.overlay {
+                Color.gray.opacity(0.1)
+            }
+        case .pouce:
+            return content.overlay {
+                Color.gray.opacity(0.2)
+            }
+        case .garde:
+            return content.overlay {
+                Color.gray.opacity(0.3)
+            }
+        case .gardeSans:
+            return content.overlay {
+                Color.gray.opacity(0.4)
+            }
+        case .gardeContre:
+            return content.overlay {
+                Color.gray.opacity(0.5)
+            }
+        default:
+            return content
+        }
+    }
+}
+
+struct TarotButton: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding()
+            .background(.quaternary, in: Capsule())
+    }
+}
+
 extension View {
     func playerNameBox(active: Bool) -> some View {
-        modifier(PlayerNameBox(active: active))
+        self
+            .font(.custom("chalkduster", size: 18))
+            .modifier(PlayerNameBox(active: active))
+    }
+    
+    func betSelector(bet: TarotGameBet, selected: Bool) -> some View {
+        if selected {
+            return modifier(BetSelector(bet: bet))
+        } else {
+            return self
+        }
+    }
+    
+    func tarotButton() -> some View {
+        modifier(TarotButton())
     }
 }
 
@@ -47,6 +99,20 @@ struct UIDesign_Previews: PreviewProvider {
                 .playerNameBox(active: true)
             Text("Inactive")
                 .playerNameBox(active: false)
+            HStack {
+                ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
+                    bi
+                        .frame(width: 40, height: 40)
+                        .betSelector(bet: bi, selected: true)
+                }
+            }
+            HStack {
+                ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
+                    bi
+                        .frame(width: 40, height: 40)
+                        .betSelector(bet: bi, selected: false)
+                }
+            }
         }
         .padding()
         .background(.gray)
