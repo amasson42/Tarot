@@ -12,6 +12,8 @@ struct WoodenBackground: View {
             averageBrown,
             darkBrown
         ], startPoint: .leading, endPoint: .trailing)
+        .border(darkBrown, width: 3)
+        .cornerRadius(20)
     }
     
 }
@@ -19,7 +21,7 @@ struct WoodenBackground: View {
 struct WoodenBackground_Previews: PreviewProvider {
     static var previews: some View {
         WoodenBackground()
-            .border(.black)
+//            .border(.black)
             .padding()
     }
 }

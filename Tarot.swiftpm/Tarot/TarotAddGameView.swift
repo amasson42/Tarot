@@ -104,8 +104,10 @@ struct TarotAddGameView: View {
                                         .frame(height: 50)
                                         .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
                                 }
+                                .background(WoodenBackground())
                                 .frame(width: proxy.size.width / CGFloat(TarotGameBet.bets.count), height: 80)
                                 .betSelector(bet: bi, selected: bi == bet)
+                                
                             }
                         }
                     }

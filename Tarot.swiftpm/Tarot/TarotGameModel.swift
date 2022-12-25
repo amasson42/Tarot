@@ -38,7 +38,7 @@ enum TarotGameOverflow: UInt8, Codable, CaseIterable {
     case p10 = 10
     case p20 = 20
     case p30 = 30
-    //    case p40 = 40
+    case p40 = 40
     
     var value: Int { Int(rawValue) }
 }

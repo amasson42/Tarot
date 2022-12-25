@@ -4,13 +4,12 @@ struct GenericCountView: View {
     
     var exitClosure: (() -> ())?
     
-    struct Player {
+    struct Player: Codable {
         var name: String = ""
         var points: Int = 0
     }
     
     @State private var players: [Player] = [.init(), .init()]
-    
     @State private var step: Int = 1
     
     var body: some View {
