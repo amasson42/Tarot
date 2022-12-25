@@ -73,8 +73,9 @@ struct TarotTableView: View {
                 Group {
                     if let gi = inputGameIndex {
                         TarotAddGameView(gameList: gameList,
-                                            game: gameList.gameHistory[gi]) { game in
-                            gameList.gameHistory[gi] = game
+                                         game: gameList.gameHistory[gi].gameScore) { game in
+                            gameList.gameHistory[gi].gameScore = game
+                            gameList.updateCumulated()
                             showInputGame = false
                             inputGameIndex = nil
                             try? gameList.save()
@@ -84,7 +85,8 @@ struct TarotTableView: View {
                         }
                     } else {
                         TarotAddGameView(gameList: gameList) { game in
-                            gameList.gameHistory.append(game)
+                            gameList.gameHistory.append((game, []))
+                            gameList.updateCumulated()
                             showInputGame = false
                             inputGameIndex = nil
                             try? gameList.save()

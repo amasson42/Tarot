@@ -27,7 +27,7 @@ struct TarotPlayerScoreTableView: View {
                         Button {
                             cellAction(pi, gi)
                         } label: {
-                            PlayerScoreView(game: gameList.gameHistory[gi], pi: pi)
+                            PlayerScoreView(game: gameList.gameHistory[gi].gameScore, cumulated: gameList.gameHistory[gi].cumulated, pi: pi)
                         }
                         .foregroundColor(.primary)
                         .id(gameList.players.count + gi * gameList.players.count + pi)
@@ -36,7 +36,7 @@ struct TarotPlayerScoreTableView: View {
                 }
                 
                 ForEach(gameList.players.indices, id: \.self) { pi in
-                    Text("\(gameList.scores[pi])")
+                    Text("\(gameList.finalScores[pi])")
                         .fontWeight(.heavy)
                         .lineLimit(1)
                         .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
@@ -63,6 +63,7 @@ struct TarotPlayerScoreTableView: View {
     struct PlayerScoreView: View {
         
         let game: TarotGameScore
+        let cumulated: [Int]
         let pi: Int
         
         var score: Int {
@@ -73,28 +74,33 @@ struct TarotPlayerScoreTableView: View {
             
             ZStack {
                 
-                VStack(spacing: -10) {
-                    
-                    if pi == game.mainPlayer {
-                        ZStack {
-                            game.bet.frame(height: 30)
-                                .opacity(0.5)
+                HStack {
+                    VStack(spacing: -10) {
+                        
+                        if pi == game.mainPlayer {
+                            ZStack {
+                                game.bet.frame(height: 30)
+                                    .opacity(0.5)
+                                Text("\(score)")
+                                    .lineLimit(1)
+                                    .background(Color.black
+                                        .clipShape(Capsule())
+                                        .opacity(0.3)
+                                        .blur(radius: 3))
+                            }
+                        } else {
                             Text("\(score)")
                                 .lineLimit(1)
-                                .background(Color.black
-                                    .clipShape(Capsule())
-                                    .opacity(0.3)
-                                    .blur(radius: 3))
                         }
-                    } else {
-                        Text("\(score)")
-                            .lineLimit(1)
+                        
+                        if !game.sideGain(forPlayer: pi).isEmpty {
+                            SideGainView(sideGains: game.sideGain(forPlayer: pi))
+                        }
+                        
                     }
                     
-                    if !game.sideGain(forPlayer: pi).isEmpty {
-                        SideGainView(sideGains: game.sideGain(forPlayer: pi))
-                    }
-                    
+                    Text("\(cumulated[pi])")
+                        .bold()
                 }
                 
             }
@@ -129,9 +135,9 @@ struct TarotPlayerScoreTableView_Previews: PreviewProvider {
         
         gameList.addGame(bet: .garde, by: 1, calling: nil, won: true, overflow: .p30)
         
-        gameList.gameHistory[6].sideGains.append(.init(player: 1, gain: .doublePoignee))
-        gameList.gameHistory[6].sideGains.append(.init(player: 1, gain: .petitAuBout))
-        gameList.gameHistory[6].sideGains.append(.init(player: 1, gain: .misery))
+        gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .doublePoignee))
+        gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .petitAuBout))
+        gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .misery))
         
         return gameList
     }()

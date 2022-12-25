@@ -7,9 +7,11 @@ final class TarotGameList: ObservableObject, Identifiable {
     let players: [String]
     var name: String
     let createdDate: Date
-    @Published var gameHistory: [TarotGameScore]
-    @Published var scores: [Int]
-    private var scoreUpdater: AnyCancellable?
+    @Published var gameHistory: [(gameScore: TarotGameScore, cumulated: [Int])]
+    
+    var finalScores: [Int] {
+        gameHistory.last?.cumulated ?? [Int](repeating: 0, count: players.count)
+    }
     
     init?(players: [String], id: UUID? = nil, name: String? = nil, createdDate: Date? = nil) {
         guard TarotGame.playerRange.contains(players.count) else {
@@ -20,19 +22,11 @@ final class TarotGameList: ObservableObject, Identifiable {
         self.players = players
         self.createdDate = createdDate ?? Date.now
         self.gameHistory = []
-        self.scores = [Int](repeating: 0, count: players.count)
         
         self.name = name ?? players.map { name in
             name.firstLetters(n: 2)
         }.reduce("", +)
         
-        self.scoreUpdater = self.$gameHistory.sink { [self] scores in
-            self.scores = scores.reduce([Int](repeating: 0, count: self.players.count)) { total, game in
-                total.enumerated().map {
-                    $0.element + game.score(forPlayer: $0.offset)
-                }
-            }
-        }
     }
     
     func addGame(bet: TarotGameBet, by player: Int, calling secondPlayer: Int? = nil, won: Bool, overflow: TarotGameOverflow) {
@@ -45,7 +39,8 @@ final class TarotGameList: ObservableObject, Identifiable {
             bet: bet,
             sideGains: [])
         
-        self.gameHistory.append(gameScore)
+        self.gameHistory.append((gameScore, []))
+        self.updateCumulated()
     }
     
     /// Create a fausse done for the target player
@@ -59,7 +54,18 @@ final class TarotGameList: ObservableObject, Identifiable {
             bet: .fausseDonne,
             sideGains: [])
         
-        self.gameHistory.append(gameScore)
+        self.gameHistory.append((gameScore, []))
+        self.updateCumulated()
+    }
+    
+    func updateCumulated() {
+        
+        var cumulated: [Int] = .init(repeating: 0, count: players.count)
+        
+        for (i, game) in gameHistory.enumerated() {
+            cumulated = zip(cumulated, game.gameScore.scores).map(+)
+            gameHistory[i].cumulated = cumulated
+        }
     }
     
 }
@@ -86,7 +92,8 @@ extension TarotGameList: Codable {
             throw "Incorrect number of players"
         }
         self.init(players: players, id: id, name: name, createdDate: createdDate)!
-        self.gameHistory = gameHistory
+        self.gameHistory = gameHistory.map { ($0, []) }
+        self.updateCumulated()
     }
     
     func encode(to encoder: Encoder) throws {
@@ -95,7 +102,7 @@ extension TarotGameList: Codable {
         try container.encode(players, forKey: .players)
         try container.encode(name, forKey: .name)
         try container.encode(createdDate, forKey: .createdDate)
-        try container.encode(gameHistory, forKey: .gameHistory)
+        try container.encode(gameHistory.map { $0.gameScore }, forKey: .gameHistory)
     }
     
     static let savingDirectory: URL = {
@@ -142,7 +149,10 @@ extension TarotGameList: Codable {
             self.id = gameList.id
             self.name = gameList.name
             self.date = gameList.createdDate
-            self.scores = zip(gameList.players, gameList.scores).map {
+            
+            gameList.updateCumulated()
+            
+            self.scores = zip(gameList.players, gameList.finalScores).map {
                 $0
             }
         }

@@ -58,8 +58,10 @@ struct BetSelector: ViewModifier {
             return content.overlay {
                 Color.gray.opacity(0.5)
             }
-        default:
-            return content
+        case .fausseDonne:
+            return content.overlay {
+                Color.gray.opacity(0.1)
+            }
         }
     }
 }
@@ -81,9 +83,9 @@ extension View {
     
     func betSelector(bet: TarotGameBet, selected: Bool) -> some View {
         if selected {
-            return modifier(BetSelector(bet: bet))
+            return AnyView(modifier(BetSelector(bet: bet)))
         } else {
-            return self
+            return AnyView(self)
         }
     }
     
