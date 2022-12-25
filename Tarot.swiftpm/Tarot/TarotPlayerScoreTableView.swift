@@ -24,6 +24,7 @@ struct TarotPlayerScoreTableView: View {
                 ForEach(gameList.gameHistory.indices, id: \.self) { gi in
                     ForEach(gameList.players.indices, id: \.self) { pi in
                         
+                        
                         Button {
                             cellAction(pi, gi)
                         } label: {
@@ -36,10 +37,14 @@ struct TarotPlayerScoreTableView: View {
                 }
                 
                 ForEach(gameList.players.indices, id: \.self) { pi in
-                    Text("\(gameList.finalScores[pi])")
-                        .fontWeight(.heavy)
-                        .lineLimit(1)
-                        .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
+                    VStack {
+                        Text("\(gameList.finalScores[pi].score)")
+                            .fontWeight(.heavy)
+                            .lineLimit(1)
+                            .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
+                        
+                        ClassmentView(classment: gameList.finalScores[pi].classment)
+                    }
                 }
             }
         }
@@ -63,7 +68,7 @@ struct TarotPlayerScoreTableView: View {
     struct PlayerScoreView: View {
         
         let game: TarotGameScore
-        let cumulated: [Int]
+        let cumulated: [TarotGameList.GameCumul]
         let pi: Int
         
         var score: Int {
@@ -74,7 +79,9 @@ struct TarotPlayerScoreTableView: View {
             
             ZStack {
                 
-                HStack {
+                HStack(alignment: .center, spacing: 8) {
+                    
+                    Divider()
                     VStack(spacing: -10) {
                         
                         if pi == game.mainPlayer {
@@ -83,6 +90,7 @@ struct TarotPlayerScoreTableView: View {
                                     .opacity(0.5)
                                 Text("\(score)")
                                     .lineLimit(1)
+                                    .minimumScaleFactor(0.2)
                                     .background(Color.black
                                         .clipShape(Capsule())
                                         .opacity(0.3)
@@ -91,6 +99,7 @@ struct TarotPlayerScoreTableView: View {
                         } else {
                             Text("\(score)")
                                 .lineLimit(1)
+                                .minimumScaleFactor(0.2)
                         }
                         
                         if !game.sideGain(forPlayer: pi).isEmpty {
@@ -98,12 +107,53 @@ struct TarotPlayerScoreTableView: View {
                         }
                         
                     }
+                    .frame(maxWidth: .infinity)
                     
-                    Text("\(cumulated[pi])")
-                        .bold()
+                    GameCumulView(gameCumul: cumulated[pi])
+                    
+                    Divider()
+                    
                 }
                 
             }
+        }
+        
+        struct GameCumulView: View {
+            var gameCumul: TarotGameList.GameCumul
+            
+            var body: some View {
+                VStack {
+                    Text("\(gameCumul.score)")
+                        .bold()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.2)
+                        .frame(maxWidth: .infinity)
+                    
+                    HStack(spacing: 0) {
+                        
+                        PositionChangerView(positionChanger: gameCumul.positionChanger)
+                            .minimumScaleFactor(0.2)
+                        
+                        ClassmentView(classment: gameCumul.classment)
+                        
+                    }
+                }
+            }
+            
+            @ViewBuilder func PositionChangerView(positionChanger: TarotGameList.PositionChanger) -> some View {
+                    switch positionChanger {
+                    case .stay:
+                        Text("-")
+                            .foregroundColor(.gray)
+                    case .increase:
+                        Text("↗")
+                            .foregroundColor(.green)
+                    case .decrease:
+                        Text("↘")
+                            .foregroundColor(.red)
+                }
+            }
+            
         }
         
         struct SideGainView: View {
@@ -119,6 +169,24 @@ struct TarotPlayerScoreTableView: View {
             }
         }
         
+    }
+    
+    struct ClassmentView: View {
+        var classment: Int
+        
+        var body: some View {
+            switch classment {
+            case 1:
+                Text("🥇")
+            case 2:
+                Text("🥈")
+            case 3:
+                Text("🥉")
+            default:
+                Text(" ")
+            }
+            
+        }
     }
 }
 

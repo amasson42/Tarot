@@ -22,7 +22,12 @@ struct TarotTableView: View {
                         inputGameIndex = $1
                     }
                 }
-                .background(Color.brown.opacity(0.7))
+                .background {
+                    [#colorLiteral(red: 0.8274510502815247, green: 0.34117645025253296, blue: 0.9960785508155823, alpha: 1.0)].map{Color($0)}.first!
+                        .border(.brown, width: 3)
+                        .cornerRadius(30)
+                }
+                
                 
                 // Add game button
                 HStack {

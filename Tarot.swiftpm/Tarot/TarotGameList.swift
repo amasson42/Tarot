@@ -7,10 +7,22 @@ final class TarotGameList: ObservableObject, Identifiable {
     let players: [String]
     var name: String
     let createdDate: Date
-    @Published var gameHistory: [(gameScore: TarotGameScore, cumulated: [Int])]
+    @Published var gameHistory: [(gameScore: TarotGameScore, cumulated: [GameCumul])]
     
-    var finalScores: [Int] {
-        gameHistory.last?.cumulated ?? [Int](repeating: 0, count: players.count)
+    struct GameCumul {
+        var score: Int = 0
+        var classment: Int = 1
+        var positionChanger: PositionChanger = .stay
+    }
+    
+    enum PositionChanger {
+        case decrease
+        case stay
+        case increase
+    }
+    
+    var finalScores: [GameCumul] {
+        gameHistory.last?.cumulated ?? [GameCumul](repeating: GameCumul(score: 0, classment: 1, positionChanger: .stay), count: players.count)
     }
     
     init?(players: [String], id: UUID? = nil, name: String? = nil, createdDate: Date? = nil) {
@@ -60,11 +72,45 @@ final class TarotGameList: ObservableObject, Identifiable {
     
     func updateCumulated() {
         
-        var cumulated: [Int] = .init(repeating: 0, count: players.count)
+        var gameCumul: [GameCumul] = .init(repeating: GameCumul(), count: players.count)
         
         for (i, game) in gameHistory.enumerated() {
-            cumulated = zip(cumulated, game.gameScore.scores).map(+)
-            gameHistory[i].cumulated = cumulated
+            let newScores = zip(gameCumul.map(\.score), game.gameScore.scores).map(+)
+            
+            let newClassments = scoresToClassment(scores: newScores)
+            
+            let newPositionChanger: [PositionChanger]
+            if i == 0 {
+                newPositionChanger = .init(repeating: .stay, count: players.count)
+            } else {
+                newPositionChanger = positionChangersFromClassments(oldClassment: gameCumul.map(\.classment), newClassment: newClassments)
+            }
+            
+            gameCumul = zip(newScores, zip(newClassments, newPositionChanger)).map { (score, classNPos) in
+                let (classment, positionChanger) = classNPos
+                return GameCumul(score: score, classment: classment, positionChanger: positionChanger)
+            }
+            
+            gameHistory[i].cumulated = gameCumul
+        }
+    }
+    
+    private func scoresToClassment(scores: [Int]) -> [Int] {
+        let sorted = scores.sorted()
+        return scores.map {
+            scores.count - (sorted.lastIndex(of: $0) ?? 1)
+        }
+    }
+    
+    private func positionChangersFromClassments(oldClassment: [Int], newClassment: [Int]) -> [PositionChanger] {
+        zip(oldClassment, newClassment).map { old, new in
+            if old > new {
+                return .increase
+            } else if old < new {
+                return .decrease
+            } else {
+                return .stay
+            }
         }
     }
     
@@ -152,7 +198,7 @@ extension TarotGameList: Codable {
             
             gameList.updateCumulated()
             
-            self.scores = zip(gameList.players, gameList.finalScores).map {
+            self.scores = zip(gameList.players, gameList.finalScores.map(\.score)).map {
                 $0
             }
         }
