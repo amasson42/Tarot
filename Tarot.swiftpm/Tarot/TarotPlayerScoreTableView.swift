@@ -71,8 +71,9 @@ struct TarotPlayerScoreTableView: View {
         let cumulated: [TarotGameList.GameCumul]
         let pi: Int
         
-        var score: Int {
-            game.score(forPlayer: pi)
+        var score: Int { game.score(forPlayer: pi) }
+        var wonColor: Color {
+            Color([#colorLiteral(red: 0.5607469081878662, green: 0.9999999403953552, blue: 0.5676395297050476, alpha: 1.0), #colorLiteral(red: 1.0000003576278687, green: 0.4104778468608856, blue: 0.33868008852005005, alpha: 1.0)][game.won(forPlayer: pi) ? 0 : 1])
         }
         
         var body: some View {
@@ -84,22 +85,20 @@ struct TarotPlayerScoreTableView: View {
                     Divider()
                     VStack(spacing: -10) {
                         
-                        if pi == game.mainPlayer {
-                            ZStack {
+                        ZStack {
+                            if pi == game.mainPlayer {
                                 game.bet.frame(height: 30)
                                     .opacity(0.5)
-                                Text("\(score)")
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.2)
-                                    .background(Color.black
-                                        .clipShape(Capsule())
-                                        .opacity(0.3)
-                                        .blur(radius: 3))
                             }
-                        } else {
+                            
                             Text("\(score)")
+                                .foregroundColor(wonColor)
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.2)
+                                .background(Color.black
+                                    .clipShape(Capsule())
+                                    .opacity(0.3)
+                                    .blur(radius: 3))
                         }
                         
                         if !game.sideGain(forPlayer: pi).isEmpty {
@@ -182,6 +181,10 @@ struct TarotPlayerScoreTableView: View {
                 Text("🥈")
             case 3:
                 Text("🥉")
+            case 4:
+                Text("💝")
+            case 5:
+                Text("💩")
             default:
                 Text(" ")
             }

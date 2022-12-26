@@ -5,10 +5,9 @@ import SwiftUI
 struct TarotTableView: View {
     
     @EnvironmentObject private var gameList: TarotGameList
-    
+    @State var distributor: Int = 0
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
-    @State private var showFausseDonePanel: Bool = false
     
     var body: some View {
         
@@ -16,57 +15,66 @@ struct TarotTableView: View {
             
             VStack {
                 // Players table
+                
                 ScrollView {
-                    TarotPlayerScoreTableView(gameList: gameList) {
-                        showInputGame = true
-                        inputGameIndex = $1
+                    VStack {
+                        Spacer(minLength: 10)
+                        
+                        HStack {
+                            ForEach(gameList.players.indices, id: \.self) { pi in
+                                if pi == distributor {
+                                    DistributorIndicator()
+                                } else {
+                                    Spacer()
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                        .onTapGesture {
+                            switchDistributor()
+                        }
+                        
+                        TarotPlayerScoreTableView(gameList: gameList) {
+                            showInputGame = true
+                            inputGameIndex = $1
+                        }
                     }
                 }
                 .background {
-                    [#colorLiteral(red: 0.8274510502815247, green: 0.34117645025253296, blue: 0.9960785508155823, alpha: 1.0)].map{Color($0)}.first!
-                        .border(.brown, width: 3)
-                        .cornerRadius(30)
+                    gameList.color
+                        .onChange(of: gameList.color) { newValue in
+                            print("on changed")
+                        }
                 }
-                
+                .cornerRadius(30)
+                .overlay {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            ColorPicker("", selection: $gameList.color)
+                                .frame(width: 50, height: 50)
+                            Spacer()
+                        }
+                        Spacer()
+                            .frame(height: 10)
+                    }
+                }
                 
                 // Add game button
                 HStack {
                     Spacer()
                     
-                    if showFausseDonePanel {
-                        HStack(alignment: .top) {
-                            VStack {
-                                ForEach(gameList.players.indices, id: \.self) { index in
-                                    Button("\(gameList.players[index])") {
-                                        gameList.addFausseDonne(forPlayer: index)
-                                        withAnimation {
-                                            showFausseDonePanel = false
-                                        }
-                                    }
-                                }
-                            }
-                            Button {
-                                withAnimation {
-                                    showFausseDonePanel = false
-                                }
-                            } label: {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(.red)
-                            }
-                        }
-                        .border(.gray, width: 2)
-                    } else {
-                        Button("Fausse Done") {
-                            withAnimation {
-                                showFausseDonePanel = true
-                            }
-                        }
-                        .tarotButton()
+                    Button("Fausse Done") {
+                        gameList.addFausseDonne(forPlayer: distributor)
+                        switchDistributor()
                     }
+                    .tarotButton()
+                    
                     Button("Add game") {
                         showInputGame = true
                     }
                     .tarotButton()
+                    
                 }
             }
             .padding()
@@ -95,6 +103,7 @@ struct TarotTableView: View {
                             showInputGame = false
                             inputGameIndex = nil
                             try? gameList.save()
+                            switchDistributor()
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
@@ -109,6 +118,30 @@ struct TarotTableView: View {
         }
         .background(GrassBackground().blur(radius: 1))
         
+    }
+    
+    @ViewBuilder func DistributorIndicator() -> some View {
+        ZStack {
+            Image(systemName: "arrow.down")
+                .foregroundColor(Color.indigo)
+                .offset(x: 0, y: 10)
+            Text("🃏")
+                .rotationEffect(Angle(degrees: 15))
+                .shadow(radius: 2)
+                .offset(x: 5, y: 1)
+            Text("🃏")
+                .rotationEffect(Angle(degrees: 0))
+                .shadow(radius: 2)
+            Text("🃏")
+                .rotationEffect(Angle(degrees: -15))
+                .shadow(radius: 3)
+                .offset(x: -5, y: 1)
+                .rotation3DEffect(Angle(degrees: 20), axis: (0, 1, 0))
+        }
+    }
+    
+    func switchDistributor() {
+        distributor = (distributor + 1) % gameList.players.count
     }
 }
 

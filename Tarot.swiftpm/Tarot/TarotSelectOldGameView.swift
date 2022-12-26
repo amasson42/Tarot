@@ -63,9 +63,11 @@ struct TarotGameListHeaderView: View {
                     }
                     .frame(maxWidth: .infinity)
                 }
-                
             }
             .frame(width: 200)
+        }
+        .background {
+            header.color
         }
     }
 }

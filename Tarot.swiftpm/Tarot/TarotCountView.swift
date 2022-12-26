@@ -44,7 +44,11 @@ struct TarotCountView: View {
                             .tag(i)
                     }
                     .onChange(of: playerNames) { nv in
-                        self.gameList = nil
+                        if self.gameList?.players.count == nv.count {
+                            self.gameList?.players = playerNames
+                        } else {
+                            self.gameList = nil
+                        }
                     }
                 }
                 

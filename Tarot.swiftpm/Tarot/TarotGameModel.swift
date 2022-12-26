@@ -188,6 +188,14 @@ struct TarotGameScore: Codable {
         scores[player]
     }
     
+    func won(forPlayer player: Int) -> Bool {
+        if player == mainPlayer || player == secondPlayer {
+            return won
+        } else {
+            return !won
+        }
+    }
+    
     func sideGain(forPlayer player: Int) -> [TarotGameSideGain] {
         self.sideGains
             .filter { $0.player == player }

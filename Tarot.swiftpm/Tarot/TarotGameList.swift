@@ -1,11 +1,13 @@
 import Combine
 import Foundation
+import SwiftUI
 
 final class TarotGameList: ObservableObject, Identifiable {
     
     let id: UUID
-    let players: [String]
-    var name: String
+    @Published var players: [String]
+    @Published var name: String
+    @Published var color: Color
     let createdDate: Date
     @Published var gameHistory: [(gameScore: TarotGameScore, cumulated: [GameCumul])]
     
@@ -25,7 +27,7 @@ final class TarotGameList: ObservableObject, Identifiable {
         gameHistory.last?.cumulated ?? [GameCumul](repeating: GameCumul(score: 0, classment: 1, positionChanger: .stay), count: players.count)
     }
     
-    init?(players: [String], id: UUID? = nil, name: String? = nil, createdDate: Date? = nil) {
+    init?(players: [String], id: UUID? = nil, name: String? = nil, color: Color? = nil, createdDate: Date? = nil) {
         guard TarotGame.playerRange.contains(players.count) else {
             return nil
         }
@@ -38,6 +40,8 @@ final class TarotGameList: ObservableObject, Identifiable {
         self.name = name ?? players.map { name in
             name.firstLetters(n: 2)
         }.reduce("", +)
+        
+        self.color = color ?? .gray
         
     }
     
@@ -122,6 +126,7 @@ extension TarotGameList: Codable {
         case id
         case players
         case name
+        case color
         case createdDate
         case gameHistory
     }
@@ -131,13 +136,14 @@ extension TarotGameList: Codable {
         let id = try container.decode(UUID.self, forKey: .id)
         let players = try container.decode([String].self, forKey: .players)
         let name = try container.decode(String.self, forKey: .name)
+        let color = (try? container.decode(Color.self, forKey: .color)) ?? .gray
         let createdDate = try container.decode(Date.self, forKey: .createdDate)
         let gameHistory = try container.decode([TarotGameScore].self, forKey: .gameHistory)
         
         guard TarotGame.playerRange.contains(players.count) else {
             throw "Incorrect number of players"
         }
-        self.init(players: players, id: id, name: name, createdDate: createdDate)!
+        self.init(players: players, id: id, name: name, color: color, createdDate: createdDate)!
         self.gameHistory = gameHistory.map { ($0, []) }
         self.updateCumulated()
     }
@@ -147,6 +153,7 @@ extension TarotGameList: Codable {
         try container.encode(id, forKey: .id)
         try container.encode(players, forKey: .players)
         try container.encode(name, forKey: .name)
+        try container.encode(color, forKey: .color)
         try container.encode(createdDate, forKey: .createdDate)
         try container.encode(gameHistory.map { $0.gameScore }, forKey: .gameHistory)
     }
@@ -180,6 +187,7 @@ extension TarotGameList: Codable {
         let file: URL
         let id: UUID
         let name: String
+        let color: Color
         let date: Date
         let scores: [(playerName: String, score: Int)]
         
@@ -194,6 +202,7 @@ extension TarotGameList: Codable {
             
             self.id = gameList.id
             self.name = gameList.name
+            self.color = gameList.color
             self.date = gameList.createdDate
             
             gameList.updateCumulated()
@@ -218,9 +227,9 @@ extension TarotGameList: Codable {
             (self.file, self.name, self.date, self.scores) = (file, name, date, scores)
         }
         
-        static let example0 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAm", date: Date.now, scores: [("Gael", -20), ("Melany", 20), ("Exav", -10), ("Ambroise", 10)])
-        static let example1 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAmPl", date: Date.now.advanced(by: 3600), scores: [("Gael", -200), ("Melany", 200), ("Exav", -150), ("Ambroise", 150), ("Pleb", 0)])
-        static let example2 = Self(file: URL(string: "/dev/null")!, name: "GaMeEx", date: Date.now.advanced(by: 86400), scores: [("Gael", -40), ("Melany", 30), ("Execve", 10)])
+        static let example0 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAm", color: .red, date: Date.now, scores: [("Gael", -20), ("Melany", 20), ("Exav", -10), ("Ambroise", 10)])
+        static let example1 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAmPl", color: .blue, date: Date.now.advanced(by: 3600), scores: [("Gael", -200), ("Melany", 200), ("Exav", -150), ("Ambroise", 150), ("Pleb", 0)])
+        static let example2 = Self(file: URL(string: "/dev/null")!, name: "GaMeEx", color: .green, date: Date.now.advanced(by: 86400), scores: [("Gael", -40), ("Melany", 30), ("Execve", 10)])
         #endif
         
     }
