@@ -11,8 +11,8 @@ struct MenuView: View {
     enum PresentView {
         case menu
         case generic
-        case count
-        case sept
+        case tarot
+        case jetons
     }
     
     @State private var presentedView: PresentView = .menu
@@ -23,10 +23,10 @@ struct MenuView: View {
                 presentedView = .generic
             }
             Button("Tarot") {
-                presentedView = .count
+                presentedView = .tarot
             }
-            Button("Sept et demi") {
-                presentedView = .sept
+            Button("Jetons") {
+                presentedView = .jetons
             }
         }
     }
@@ -39,12 +39,14 @@ struct MenuView: View {
             GenericCountView(exitClosure: {
                 self.presentedView = .menu
             })
-        case .count:
+        case .tarot:
             TarotCountView(exitClosure: {
                 self.presentedView = .menu
             })
-        case .sept:
-            Text("Let's play !")
+        case .jetons:
+            JetonsBoardView(exitClosure: { 
+                self.presentedView = .menu
+            })
         }
     }
 }

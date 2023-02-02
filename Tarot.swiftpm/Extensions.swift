@@ -52,3 +52,52 @@ extension Color: Codable {
     }
 }
 
+import CoreGraphics
+
+extension CGPoint: AdditiveArithmetic {
+    
+    init(_ size: CGSize) {
+        self.init(x: size.width, y: size.height)
+    }
+    
+    public static func - (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+    }
+    
+    public static func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+    
+    public static func * (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x * rhs.x, y: lhs.y * rhs.y)
+    }
+    
+    public static func / (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x / rhs.x, y: lhs.y / rhs.y)
+    }
+    
+    public static func * (lhs: CGPoint, rhs: CGFloat) -> CGPoint {
+        CGPoint(x: lhs.x * rhs, y: lhs.y * rhs)
+    }
+    
+    public static func * (lhs: CGFloat, rhs: CGPoint) -> CGPoint {
+        rhs * lhs
+    }
+    
+    public static func / (lhs: CGPoint, rhs: CGFloat) -> CGPoint {
+        CGPoint(x: lhs.x / rhs, y: lhs.y / rhs)
+    }
+    
+    public func squaredNorme() -> CGFloat {
+        x * x + y * y
+    }
+    
+    public static func lerp(_ a: CGPoint, _ b: CGPoint, _ t: CGFloat) -> CGPoint {
+        return CGPoint(
+            x: a.x + (b.x - a.x) * t,
+            y: a.y + (b.y - a.y) * t
+        )
+    }
+    
+}
+
