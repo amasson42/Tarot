@@ -37,15 +37,56 @@ struct TarotPlayerScoreTableView: View {
                 }
                 
                 ForEach(gameList.players.indices, id: \.self) { pi in
-                    VStack {
+                    VStack(alignment: .center) {
                         Text("\(gameList.finalScores[pi].score)")
                             .fontWeight(.heavy)
                             .lineLimit(1)
                             .id(gameList.players.count + gameList.players.count * gameList.gameHistory.count + pi)
                         
                         ClassmentView(classment: gameList.finalScores[pi].classment)
+                            .modifier(EnormeMerdeModifier(gameList: gameList, playerIndex: pi))
                     }
                 }
+            }
+        }
+        
+    }
+    
+    struct EnormeMerdeModifier: ViewModifier {
+        
+        let scale: CGFloat?
+        
+        init(gameList: TarotGameList, playerIndex: Int) {
+            if gameList.finalScores[playerIndex].classment == 5 {
+                
+                let playersAboveZero = gameList.finalScores.filter({ $0.score > 0 }).count
+                let scalerIndexors: [Int: CGFloat] = [
+                    0: 1,
+                    1: 1,
+                    2: 1.5,
+                    3: 2,
+                    4: 3
+                ]
+                
+                let noobFactor = 1.0 + abs(CGFloat(gameList.finalScores[playerIndex].score)) * 0.002 * scalerIndexors[playersAboveZero, default: 1.0]
+                
+                self.scale = noobFactor
+                
+            } else {
+                self.scale = nil
+            }
+        }
+        
+        func body(content: Content) -> some View {
+            if let scale = scale {
+                return Text(" ")
+                    .overlay {
+                        content
+                            .font(.custom("system", size: 20 * scale))
+                            .frame(width: 200, height: 20)
+                    }
+            } else {
+                return content
             }
         }
         
@@ -140,16 +181,16 @@ struct TarotPlayerScoreTableView: View {
             }
             
             @ViewBuilder func PositionChangerView(positionChanger: TarotGameList.PositionChanger) -> some View {
-                    switch positionChanger {
-                    case .stay:
-                        Text("-")
-                            .foregroundColor(.gray)
-                    case .increase:
-                        Text("↗")
-                            .foregroundColor(.green)
-                    case .decrease:
-                        Text("↘")
-                            .foregroundColor(.red)
+                switch positionChanger {
+                case .stay:
+                    Text("-")
+                        .foregroundColor(.gray)
+                case .increase:
+                    Text("↗")
+                        .foregroundColor(.green)
+                case .decrease:
+                    Text("↘")
+                        .foregroundColor(.red)
                 }
             }
             
@@ -210,6 +251,8 @@ struct TarotPlayerScoreTableView_Previews: PreviewProvider {
         gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .petitAuBout))
         gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .misery))
         
+        gameList.addFausseDonne(forPlayer: 0)
+//        gameList.addGame(bet: .garde, by: 4, calling: nil, won: false, overflow: .p20)
         return gameList
     }()
     

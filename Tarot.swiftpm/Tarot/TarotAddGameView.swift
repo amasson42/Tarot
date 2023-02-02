@@ -6,6 +6,7 @@ struct TarotAddGameView: View {
     @ObservedObject var gameList: TarotGameList
     var action: (TarotGameScore) -> ()
     var cancel: () -> ()
+    var delete: (() -> ())?
     
     @State private var bet: TarotGameBet?
     @State private var mainPlayer: Int?
@@ -17,11 +18,13 @@ struct TarotAddGameView: View {
     init(gameList: TarotGameList,
          game: TarotGameScore? = nil,
          action: @escaping (TarotGameScore) -> () = { _ in },
-         cancel: @escaping () -> () = {}
+         cancel: @escaping () -> () = {},
+         delete: (() -> ())? = nil
     ) {
         self.gameList = gameList
         self.action = action
         self.cancel = cancel
+        self.delete = delete
         
         if let game = game {
             self._bet = State(initialValue: game.bet)
@@ -38,6 +41,13 @@ struct TarotAddGameView: View {
             ScrollView(.vertical) {
                 VStack {
                     
+                    if bet == .fausseDonne {
+                        bet?
+                            .frame(maxWidth: 200)
+                        
+                        PlayerPickerView(players: gameList.players, main: $mainPlayer, second: .constant(nil))
+                    }
+                    
                     BetPickerView(bet: $bet)
                         .frame(height: 150)
                     
@@ -49,12 +59,11 @@ struct TarotAddGameView: View {
                         if mainPlayer != nil {
                             ScorePickerView(won: $won, overflow: $overflow)
                             
-                            if won != nil {
-                                SideGainsView(players: gameList.players,
-                                              sideGains: $sideGains)
-                            }
-                            
                         }
+                        
+                        Spacer(minLength: 85)
+                        SideGainsView(players: gameList.players,
+                                      sideGains: $sideGains)
                         
                     }
                     
@@ -78,6 +87,12 @@ struct TarotAddGameView: View {
                 
                 Button("Cancel", role: .cancel) {
                     cancel()
+                }
+                
+                if let delete = delete {
+                    Button("Delete", role: .destructive) {
+                        delete()
+                    }
                 }
                 
             }.padding()
@@ -135,6 +150,8 @@ struct TarotAddGameView: View {
                         } label: {
                             Text("\(players[pi])")
                                 .foregroundColor(.black)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.1)
                         }
                         .disabled(main == pi)
                         .playerNameBox(active: main == pi)
@@ -153,6 +170,8 @@ struct TarotAddGameView: View {
                             } label: {
                                 Text("\(players[pi])")
                                     .foregroundColor(.black)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.1)
                             }
                             .disabled(second == pi)
                             .playerNameBox(active: second == pi)

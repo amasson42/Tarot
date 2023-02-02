@@ -95,6 +95,11 @@ struct TarotTableView: View {
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
+                        } delete: {
+                            showInputGame = false
+                            inputGameIndex = nil
+                            gameList.gameHistory.remove(at: gi)
+                            try? gameList.save()
                         }
                     } else {
                         TarotAddGameView(gameList: gameList) { game in
