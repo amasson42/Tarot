@@ -78,16 +78,12 @@ struct TarotPlayerScoreTableView: View {
         }
         
         func body(content: Content) -> some View {
-            if let scale = scale {
-                return Text(" ")
-                    .overlay {
-                        content
-                            .font(.custom("system", size: 20 * scale))
-                            .frame(width: 200, height: 20)
-                    }
-            } else {
-                return content
-            }
+            return Text(" ")
+                .overlay {
+                    content
+                        .font(.custom("system", size: 20 * (scale ?? 1.0 )))
+                        .frame(width: 200, height: 20)
+                }
         }
         
     }
@@ -252,7 +248,7 @@ struct TarotPlayerScoreTableView_Previews: PreviewProvider {
         gameList.gameHistory[6].gameScore.sideGains.append(.init(player: 1, gain: .misery))
         
         gameList.addFausseDonne(forPlayer: 0)
-//        gameList.addGame(bet: .garde, by: 4, calling: nil, won: false, overflow: .p20)
+        //        gameList.addGame(bet: .garde, by: 4, calling: nil, won: false, overflow: .p20)
         return gameList
     }()
     

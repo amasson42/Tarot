@@ -225,11 +225,12 @@ extension TarotGameList: Codable {
         private init(file: URL, name: String, date: Date, scores: [(String, Int)]) {
             self.id = UUID()
             (self.file, self.name, self.date, self.scores) = (file, name, date, scores)
+            self.color = .gray
         }
         
-        static let example0 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAm", color: .red, date: Date.now, scores: [("Gael", -20), ("Melany", 20), ("Exav", -10), ("Ambroise", 10)])
-        static let example1 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAmPl", color: .blue, date: Date.now.advanced(by: 3600), scores: [("Gael", -200), ("Melany", 200), ("Exav", -150), ("Ambroise", 150), ("Pleb", 0)])
-        static let example2 = Self(file: URL(string: "/dev/null")!, name: "GaMeEx", color: .green, date: Date.now.advanced(by: 86400), scores: [("Gael", -40), ("Melany", 30), ("Execve", 10)])
+        static let example0 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAm", date: Date.now, scores: [("Gael", -20), ("Melany", 20), ("Exav", -10), ("Ambroise", 10)])
+        static let example1 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAmPl", date: Date.now.advanced(by: 3600), scores: [("Gael", -200), ("Melany", 200), ("Exav", -150), ("Ambroise", 150), ("Pleb", 0)])
+        static let example2 = Self(file: URL(string: "/dev/null")!, name: "GaMeEx", date: Date.now.advanced(by: 86400), scores: [("Gael", -40), ("Melany", 30), ("Execve", 10)])
         #endif
         
     }

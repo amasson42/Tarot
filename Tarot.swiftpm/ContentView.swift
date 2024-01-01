@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var start = Date.now
+    
     var body: some View {
         MenuView()
     }

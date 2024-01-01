@@ -342,6 +342,8 @@ struct TarotAddGameView: View {
                                     selectedGain = nil
                                 } label: {
                                     Text("\(players[i])")
+                                        .foregroundColor(.black)
+                                        .modifier(PlayerNameBox(active: false))
                                 }
                                 
                             }
