@@ -3,7 +3,7 @@ import SwiftUI
 /// Utility window from Counting App feature
 /// Can create a new TarotGame from interfaces inputs and will send the result in the action closure
 struct TarotAddGameView: View {
-    @ObservedObject var gameList: TarotGameList
+    @ObservedObject var gameList: TarotScores
     var action: (TarotGame) -> ()
     var cancel: () -> ()
     var delete: (() -> ())?
@@ -15,7 +15,7 @@ struct TarotAddGameView: View {
     @State private var overflow: TarotGameOverflow?
     @State private var sideGains: [TarotGame.SideGain] = []
     
-    init(gameList: TarotGameList,
+    init(gameList: TarotScores,
          game: TarotGame? = nil,
          action: @escaping (TarotGame) -> () = { _ in },
          cancel: @escaping () -> () = {},
@@ -393,7 +393,7 @@ struct TarotAddGameView_Previews: PreviewProvider {
     static let names_3p = ["Adrien", "Guillaume", "Arthur"]
     
     static var previews: some View {
-        TarotAddGameView(gameList: TarotGameList(players: names_5p)!,
+        TarotAddGameView(gameList: TarotScores(players: names_5p)!,
                             game: TarotGame(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
                                 .init(player: 0, gain: .misery),
                                 .init(player: 2, gain: .doublePoignee)

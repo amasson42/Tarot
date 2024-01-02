@@ -11,7 +11,7 @@ struct TarotCountView: View {
     @AppStorage("tarot_playerName3") var playerName3 = ""
     @AppStorage("tarot_playerName4") var playerName4 = ""
     
-    @State private var gameList: TarotGameList?
+    @State private var gameList: TarotScores?
     @State private var selectOldGameActive: Bool = false
     @State private var gameListActive: Bool = false
     
@@ -72,7 +72,7 @@ struct TarotCountView: View {
                     
                     Button {
                         if self.gameList == nil {
-                            self.gameList = TarotGameList(players: self.playerNames)
+                            self.gameList = TarotScores(players: self.playerNames)
                         }
                         self.gameListActive = true
                     } label: {

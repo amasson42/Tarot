@@ -1,16 +1,16 @@
 import SwiftUI
 
 /// Reusable view from Counting App feature
-/// Display the content of the TarotGameList in parameter
+/// Display the content of the TarotScores in parameter
 struct TarotPlayerScoreTableView: View {
     
-    @ObservedObject var gameList: TarotGameList
+    @ObservedObject var gameList: TarotScores
     
     var cellAction: (Int, Int) -> ()
     
     private let layout: [GridItem]
     
-    init(gameList: TarotGameList, cellAction: @escaping (Int, Int) -> () = { _, _ in }) {
+    init(gameList: TarotScores, cellAction: @escaping (Int, Int) -> () = { _, _ in }) {
         self._gameList = .init(wrappedValue: gameList)
         self.cellAction = cellAction
         self.layout = [GridItem](repeating: GridItem(), count: gameList.players.count)
@@ -56,7 +56,7 @@ struct TarotPlayerScoreTableView: View {
         
         let scale: CGFloat?
         
-        init(gameList: TarotGameList, playerIndex: Int) {
+        init(gameList: TarotScores, playerIndex: Int) {
             if gameList.finalScores[playerIndex].classment == 5 {
                 
                 let playersAboveZero = gameList.finalScores.filter({ $0.score > 0 }).count
@@ -105,7 +105,7 @@ struct TarotPlayerScoreTableView: View {
     struct PlayerScoreView: View {
         
         let game: TarotGame
-        let cumulated: [TarotGameList.GameCumul]
+        let cumulated: [TarotScores.GameCumul]
         let pi: Int
         
         var score: Int { game.score(forPlayer: pi) }
@@ -155,7 +155,7 @@ struct TarotPlayerScoreTableView: View {
         }
         
         struct GameCumulView: View {
-            var gameCumul: TarotGameList.GameCumul
+            var gameCumul: TarotScores.GameCumul
             
             var body: some View {
                 VStack {
@@ -176,7 +176,7 @@ struct TarotPlayerScoreTableView: View {
                 }
             }
             
-            @ViewBuilder func PositionChangerView(positionChanger: TarotGameList.PositionChanger) -> some View {
+            @ViewBuilder func PositionChangerView(positionChanger: TarotScores.PositionChanger) -> some View {
                 switch positionChanger {
                 case .stay:
                     Text("-")
@@ -232,8 +232,8 @@ struct TarotPlayerScoreTableView: View {
 
 struct TarotPlayerScoreTableView_Previews: PreviewProvider {
     
-    static let listExample0: TarotGameList = {
-        let gameList = TarotGameList(players: ["Arthur", "Guillaume", "Adrien", "Nicolas", "Maman"])!
+    static let listExample0: TarotScores = {
+        let gameList = TarotScores(players: ["Arthur", "Guillaume", "Adrien", "Nicolas", "Maman"])!
         
         gameList.players.indices.forEach {
             gameList.addFausseDonne(forPlayer: $0)

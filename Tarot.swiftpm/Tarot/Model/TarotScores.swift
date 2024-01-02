@@ -2,7 +2,7 @@ import Combine
 import Foundation
 import SwiftUI
 
-final class TarotGameList: ObservableObject, Identifiable {
+final class TarotScores: ObservableObject, Identifiable {
     
     let id: UUID
     @Published var players: [String]
@@ -120,7 +120,7 @@ final class TarotGameList: ObservableObject, Identifiable {
     
 }
 
-extension TarotGameList: Codable {
+extension TarotScores: Codable {
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -198,7 +198,7 @@ extension TarotGameList: Codable {
                   let fileData = FileManager.default.contents(atPath: file.path) else {
                 throw "File \(file) is too big"
             }
-            let gameList = try JSONDecoder().decode(TarotGameList.self, from: fileData)
+            let gameList = try JSONDecoder().decode(TarotScores.self, from: fileData)
             
             self.id = gameList.id
             self.name = gameList.name
@@ -212,9 +212,9 @@ extension TarotGameList: Codable {
             }
         }
         
-        func load() throws -> TarotGameList {
+        func load() throws -> TarotScores {
             let data = try Data(contentsOf: self.file)
-            return try JSONDecoder().decode(TarotGameList.self, from: data)
+            return try JSONDecoder().decode(TarotScores.self, from: data)
         }
         
         func delete() throws {

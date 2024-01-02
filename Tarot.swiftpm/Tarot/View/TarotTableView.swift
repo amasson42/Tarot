@@ -1,10 +1,10 @@
 import SwiftUI
 
 /// Main feature of the Counting App feature
-/// Needs a TarotGameList in environment to display its content and add new games to it
+/// Needs a TarotScores in environment to display its content and add new games to it
 struct TarotTableView: View {
     
-    @EnvironmentObject private var gameList: TarotGameList
+    @EnvironmentObject private var gameList: TarotScores
     @State var distributor: Int = 0
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
@@ -156,7 +156,7 @@ struct TarotTableView_Previews: PreviewProvider {
     
     static var previews: some View {
         TarotTableView()
-            .environmentObject(TarotGameList(players: names)!)
+            .environmentObject(TarotScores(players: names)!)
     }
 }
 

@@ -2,10 +2,10 @@ import SwiftUI
 
 struct TarotSelectOldGameView: View {
     
-    var action: (TarotGameList) -> () = { _ in }
+    var action: (TarotScores) -> () = { _ in }
     var cancel: () -> () = {}
     
-    @State var savedGames: [TarotGameList.Header] = []
+    @State var savedGames: [TarotScores.Header] = []
     
     var body: some View {
         List {
@@ -18,7 +18,7 @@ struct TarotSelectOldGameView: View {
                         print("error loading game \(savedGame.name): \(error.localizedDescription)")
                     }
                 } label: {
-                    TarotGameListHeaderView(header: savedGame)
+                    TarotScoresHeaderView(header: savedGame)
                 }
             }
             .onDelete { indices in
@@ -33,14 +33,14 @@ struct TarotSelectOldGameView: View {
             }
         }
         .onAppear {
-            savedGames = TarotGameList.listGames()
+            savedGames = TarotScores.listGames()
         }
     }
 }
 
-struct TarotGameListHeaderView: View {
+struct TarotScoresHeaderView: View {
     
-    let header: TarotGameList.Header
+    let header: TarotScores.Header
     
     var body: some View {
         VStack {
@@ -70,6 +70,10 @@ struct TarotGameListHeaderView: View {
             header.color
         }
     }
+}
+
+#Preview {
+    TarotSelectOldGameView()
 }
 
 struct TarotSelectOldGameView_Previews: PreviewProvider {
