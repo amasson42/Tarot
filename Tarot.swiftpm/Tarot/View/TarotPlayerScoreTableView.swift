@@ -104,7 +104,7 @@ struct TarotPlayerScoreTableView: View {
     
     struct PlayerScoreView: View {
         
-        let game: TarotGameScore
+        let game: TarotGame
         let cumulated: [TarotGameList.GameCumul]
         let pi: Int
         

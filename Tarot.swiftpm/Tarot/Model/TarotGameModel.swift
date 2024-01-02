@@ -1,12 +1,5 @@
 import Foundation
 
-struct TarotGame {
-    /// Min and Max number of players
-    static let playerRange = 3...5
-    
-    private init() {}
-}
-
 enum TarotGameBet: String, Codable, CaseIterable, CustomStringConvertible {
     case fausseDonne = "Fausse Done"
     case petite = "Petite"
@@ -80,7 +73,11 @@ enum TarotGameSideGain: Codable, CaseIterable, CustomStringConvertible {
     }
 }
 
-struct TarotGameScore: Codable {
+struct TarotGame: Codable {
+    
+    /// Min and Max number of players
+    static let playerRange = 3...5
+    
     struct SideGain: Codable, Equatable {
         let player: Int
         let gain: TarotGameSideGain
@@ -204,7 +201,7 @@ struct TarotGameScore: Codable {
     
 }
 
-extension TarotGameScore: CustomStringConvertible {
+extension TarotGame: CustomStringConvertible {
     
     func description(withPlayers players: [String]) -> String {
         assert(players.count == playerCount)

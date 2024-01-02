@@ -9,7 +9,7 @@ final class TarotGameList: ObservableObject, Identifiable {
     @Published var name: String
     @Published var color: Color
     let createdDate: Date
-    @Published var gameHistory: [(gameScore: TarotGameScore, cumulated: [GameCumul])]
+    @Published var gameHistory: [(gameScore: TarotGame, cumulated: [GameCumul])]
     
     struct GameCumul {
         var score: Int = 0
@@ -46,7 +46,7 @@ final class TarotGameList: ObservableObject, Identifiable {
     }
     
     func addGame(bet: TarotGameBet, by player: Int, calling secondPlayer: Int? = nil, won: Bool, overflow: TarotGameOverflow) {
-        let gameScore = TarotGameScore(
+        let gameScore = TarotGame(
             playerCount: self.players.count,
             mainPlayer: player,
             secondPlayer: secondPlayer,
@@ -61,7 +61,7 @@ final class TarotGameList: ObservableObject, Identifiable {
     
     /// Create a fausse done for the target player
     func addFausseDonne(forPlayer player: Int) {
-        let gameScore = TarotGameScore(
+        let gameScore = TarotGame(
             playerCount: self.players.count,
             mainPlayer: player,
             secondPlayer: nil,
@@ -138,7 +138,7 @@ extension TarotGameList: Codable {
         let name = try container.decode(String.self, forKey: .name)
         let color = (try? container.decode(Color.self, forKey: .color)) ?? .gray
         let createdDate = try container.decode(Date.self, forKey: .createdDate)
-        let gameHistory = try container.decode([TarotGameScore].self, forKey: .gameHistory)
+        let gameHistory = try container.decode([TarotGame].self, forKey: .gameHistory)
         
         guard TarotGame.playerRange.contains(players.count) else {
             throw "Incorrect number of players"

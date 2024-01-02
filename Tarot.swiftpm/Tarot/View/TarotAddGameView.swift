@@ -1,10 +1,10 @@
 import SwiftUI
 
 /// Utility window from Counting App feature
-/// Can create a new TarotGameScore from interfaces inputs and will send the result in the action closure
+/// Can create a new TarotGame from interfaces inputs and will send the result in the action closure
 struct TarotAddGameView: View {
     @ObservedObject var gameList: TarotGameList
-    var action: (TarotGameScore) -> ()
+    var action: (TarotGame) -> ()
     var cancel: () -> ()
     var delete: (() -> ())?
     
@@ -13,11 +13,11 @@ struct TarotAddGameView: View {
     @State private var secondPlayer: Int?
     @State private var won: Bool?
     @State private var overflow: TarotGameOverflow?
-    @State private var sideGains: [TarotGameScore.SideGain] = []
+    @State private var sideGains: [TarotGame.SideGain] = []
     
     init(gameList: TarotGameList,
-         game: TarotGameScore? = nil,
-         action: @escaping (TarotGameScore) -> () = { _ in },
+         game: TarotGame? = nil,
+         action: @escaping (TarotGame) -> () = { _ in },
          cancel: @escaping () -> () = {},
          delete: (() -> ())? = nil
     ) {
@@ -246,7 +246,7 @@ struct TarotAddGameView: View {
     struct SideGainsView: View {
         
         let players: [String]
-        @Binding var sideGains: [TarotGameScore.SideGain]
+        @Binding var sideGains: [TarotGame.SideGain]
         
         let allGains = TarotGameSideGain.allCases
         
@@ -335,7 +335,7 @@ struct TarotAddGameView: View {
                             ForEach(players.indices, id: \.self) { i in
                                 Button {
                                     
-                                    let newGain = TarotGameScore.SideGain(player: i, gain: selectedGainW)
+                                    let newGain = TarotGame.SideGain(player: i, gain: selectedGainW)
                                     
                                     sideGains.append(newGain)
                                     
@@ -368,7 +368,7 @@ struct TarotAddGameView: View {
         
     }
     
-    var game: TarotGameScore? {
+    var game: TarotGame? {
         guard let bet = bet,
               let mainPlayer = mainPlayer,
               let won = won,
@@ -376,7 +376,7 @@ struct TarotAddGameView: View {
         else { return nil }
         
         let secondPlayer = mainPlayer == secondPlayer ? nil : secondPlayer
-        return TarotGameScore(playerCount: gameList.players.count,
+        return TarotGame(playerCount: gameList.players.count,
                               mainPlayer: mainPlayer,
                               secondPlayer: secondPlayer,
                               won: won,
@@ -394,7 +394,7 @@ struct TarotAddGameView_Previews: PreviewProvider {
     
     static var previews: some View {
         TarotAddGameView(gameList: TarotGameList(players: names_5p)!,
-                            game: TarotGameScore(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
+                            game: TarotGame(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
                                 .init(player: 0, gain: .misery),
                                 .init(player: 2, gain: .doublePoignee)
                             ])) {
@@ -415,7 +415,7 @@ struct CountAppAddGameSideGainsView_Previews: PreviewProvider {
     struct Previewer: View {
         let names_5p = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
         
-        @State var sideGains: [TarotGameScore.SideGain] = [
+        @State var sideGains: [TarotGame.SideGain] = [
             .init(player: 0, gain: .misery),
             .init(player: 1, gain: .petitAuBout)
         ]
