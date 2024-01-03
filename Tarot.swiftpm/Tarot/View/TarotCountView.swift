@@ -11,9 +11,9 @@ struct TarotCountView: View {
     @AppStorage("tarot_playerName3") var playerName3 = ""
     @AppStorage("tarot_playerName4") var playerName4 = ""
     
-    @State private var gameList: TarotScores?
+    @State private var game: TarotGame?
     @State private var selectOldGameActive: Bool = false
-    @State private var gameListActive: Bool = false
+    @State private var gameActive: Bool = false
     
     var playerNamesBind: [Binding<String>] {
         [$playerName0, $playerName1, $playerName2, $playerName3, $playerName4]
@@ -37,17 +37,17 @@ struct TarotCountView: View {
                     ForEach(playerNamesBind.indices, id: \.self) {
                         i in
                         TextField("empty spot", text: playerNamesBind[i])
-                            .playerNameBox(active: !(gameList?.gameHistory.isEmpty ?? true))
+                            .playerNameBox(active: !(game?.rounds.isEmpty ?? true))
                             .disableAutocorrection(true)
                             .textInputAutocapitalization(.words)
                             .padding(.horizontal)
                             .tag(i)
                     }
                     .onChange(of: playerNames) { nv in
-                        if self.gameList?.players.count == nv.count {
-                            self.gameList?.players = playerNames
+                        if self.game?.players.count == nv.count {
+                            self.game?.players = playerNames
                         } else {
-                            self.gameList = nil
+                            self.game = nil
                         }
                     }
                 }
@@ -55,11 +55,11 @@ struct TarotCountView: View {
                 HStack {
                     
                     NavigationLink(isActive: $selectOldGameActive) { 
-                        TarotSelectOldGameView { game in
+                        TarotSelectOldGameView(gameManager: TarotGameManager_LocalFiles()) { game in
                             self.setPlayerNames(game.players)
                             self.selectOldGameActive = false
                             DispatchQueue.main.async {
-                                self.gameList = game
+                                self.game = game
                             }
                         }
                     } label: {
@@ -71,10 +71,10 @@ struct TarotCountView: View {
                     .tarotButton()
                     
                     Button {
-                        if self.gameList == nil {
-                            self.gameList = TarotScores(players: self.playerNames)
+                        if self.game == nil {
+                            self.game = TarotGame(players: self.playerNames)
                         }
-                        self.gameListActive = true
+                        self.gameActive = true
                     } label: {
                         VStack {
                             Image(systemName: "play.fill")
@@ -83,21 +83,21 @@ struct TarotCountView: View {
                     }
                     .tarotButton()
                     
-                    if let gameList = self.gameList {
+                    if let game = self.game {
                         
                         NavigationLink(destination: TarotTableView()
-                                        .environmentObject(gameList)
-                                        .navigationTitle(gameList.name)
+                                        .environmentObject(game)
+                                        .navigationTitle(game.name)
                                         .onDisappear {
                             do {
-                                if !gameList.gameHistory.isEmpty {
-                                    try gameList.save()
+                                if !game.rounds.isEmpty {
+                                    try TarotGameManager_LocalFiles().save(game: game)
                                 }
                             } catch {
-                                print("error saving game \(gameList.name): \(error.localizedDescription)")
+                                print("error saving game \(game.name): \(error.localizedDescription)")
                             }
                         }
-                                       , isActive: $gameListActive, label: {
+                                       , isActive: $gameActive, label: {
                             EmptyView()
                         })
                         
@@ -124,8 +124,6 @@ struct TarotCountView: View {
     
 }
 
-struct TarotCountView_Previews: PreviewProvider {
-    static var previews: some View {
-        TarotCountView()
-    }
+#Preview {
+    TarotCountView()
 }

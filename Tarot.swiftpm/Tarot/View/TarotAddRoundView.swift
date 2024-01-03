@@ -1,38 +1,38 @@
 import SwiftUI
 
 /// Utility window from Counting App feature
-/// Can create a new TarotGame from interfaces inputs and will send the result in the action closure
-struct TarotAddGameView: View {
-    @ObservedObject var gameList: TarotScores
-    var action: (TarotGame) -> ()
+/// Can create a new TarotRound from interfaces inputs and will send the result in the action closure
+struct TarotAddRoundView: View {
+    @ObservedObject var game: TarotGame
+    var action: (TarotRound) -> ()
     var cancel: () -> ()
     var delete: (() -> ())?
     
-    @State private var bet: TarotGameBet?
+    @State private var bet: TarotBet?
     @State private var mainPlayer: Int?
     @State private var secondPlayer: Int?
     @State private var won: Bool?
-    @State private var overflow: TarotGameOverflow?
-    @State private var sideGains: [TarotGame.SideGain] = []
+    @State private var overflow: TarotRoundOverflow?
+    @State private var sideGains: [TarotRound.AttributedSideGain] = []
     
-    init(gameList: TarotScores,
-         game: TarotGame? = nil,
-         action: @escaping (TarotGame) -> () = { _ in },
+    init(game: TarotGame,
+         round: TarotRound? = nil,
+         action: @escaping (TarotRound) -> () = { _ in },
          cancel: @escaping () -> () = {},
          delete: (() -> ())? = nil
     ) {
-        self.gameList = gameList
+        self.game = game
         self.action = action
         self.cancel = cancel
         self.delete = delete
         
-        if let game = game {
-            self._bet = State(initialValue: game.bet)
-            self._mainPlayer = State(initialValue: game.mainPlayer)
-            self._secondPlayer = State(initialValue: game.secondPlayer)
-            self._won = State(initialValue: game.won)
-            self._overflow = State(initialValue: game.overflow)
-            self._sideGains = State(initialValue: game.sideGains)
+        if let round {
+            self._bet = State(initialValue: round.bet)
+            self._mainPlayer = State(initialValue: round.mainPlayer)
+            self._secondPlayer = State(initialValue: round.secondPlayer)
+            self._won = State(initialValue: round.won)
+            self._overflow = State(initialValue: round.overflow)
+            self._sideGains = State(initialValue: round.attributedSideGains)
         }
     }
     
@@ -45,14 +45,14 @@ struct TarotAddGameView: View {
                         bet?
                             .frame(maxWidth: 200)
                         
-                        PlayerPickerView(players: gameList.players, main: $mainPlayer, second: .constant(nil))
+                        PlayerPickerView(players: game.players, main: $mainPlayer, second: .constant(nil))
                     }
                     
                     BetPickerView(bet: $bet)
                         .frame(height: 150)
                     
                     if bet != nil {
-                        PlayerPickerView(players: gameList.players,
+                        PlayerPickerView(players: game.players,
                                          main: $mainPlayer,
                                          second: $secondPlayer)
                         
@@ -62,13 +62,13 @@ struct TarotAddGameView: View {
                         }
                         
                         Spacer(minLength: 85)
-                        SideGainsView(players: gameList.players,
+                        SideGainsView(players: game.players,
                                       sideGains: $sideGains)
                         
                     }
                     
                     ScrollView {
-                        Text(game?.description(withPlayers: gameList.players) ?? "")
+                        Text(round?.description(withPlayers: game.players) ?? "")
                     }
                     
                     Spacer()
@@ -78,9 +78,9 @@ struct TarotAddGameView: View {
             
             HStack {
                 
-                if let game = game {
+                if let round {
                     Button("Ok") {
-                        action(game)
+                        action(round)
                     }
                     .buttonStyle(.borderedProminent)
                 }
@@ -89,7 +89,7 @@ struct TarotAddGameView: View {
                     cancel()
                 }
                 
-                if let delete = delete {
+                if let delete {
                     Button("Delete", role: .destructive) {
                         delete()
                     }
@@ -101,14 +101,14 @@ struct TarotAddGameView: View {
     
     // MARK: BetPickerView
     struct BetPickerView: View {
-        @Binding var bet: TarotGameBet?
+        @Binding var bet: TarotBet?
         @Namespace private var betAnimation
         
         var body: some View {
             GeometryReader { proxy in
                 VStack {
                     HStack(spacing: 0) {
-                        ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
+                        ForEach(TarotBet.bets, id: \.hashValue) { bi in
                             Button {
                                 withAnimation {
                                     bet = bi
@@ -120,7 +120,7 @@ struct TarotAddGameView: View {
                                         .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
                                 }
                                 .background(WoodenBackground())
-                                .frame(width: proxy.size.width / CGFloat(TarotGameBet.bets.count), height: 80)
+                                .frame(width: proxy.size.width / CGFloat(TarotBet.bets.count), height: 80)
                                 .betSelector(bet: bi, selected: bi == bet)
                                 
                             }
@@ -188,24 +188,24 @@ struct TarotAddGameView: View {
     // MARK: ScorePickerView
     struct ScorePickerView: View {
         @Binding var won: Bool?
-        @Binding var overflow: TarotGameOverflow?
+        @Binding var overflow: TarotRoundOverflow?
         
         @State private var pickerChoice: Int?
         @State private var sliderChoice: Int = choices.count / 2
         
         struct Choice: Equatable {
             let won: Bool
-            let overflow: TarotGameOverflow
+            let overflow: TarotRoundOverflow
         }
         
         static let choices: [Choice] =
-        TarotGameOverflow.allCases.reversed().map {
+        TarotRoundOverflow.allCases.reversed().map {
             Choice(won: false, overflow: $0)
-        } + TarotGameOverflow.allCases.map {
+        } + TarotRoundOverflow.allCases.map {
             Choice(won: true, overflow: $0)
         }
         
-        init(won: Binding<Bool?>, overflow: Binding<TarotGameOverflow?>) {
+        init(won: Binding<Bool?>, overflow: Binding<TarotRoundOverflow?>) {
             self._won = won
             self._overflow = overflow
             
@@ -246,13 +246,13 @@ struct TarotAddGameView: View {
     struct SideGainsView: View {
         
         let players: [String]
-        @Binding var sideGains: [TarotGame.SideGain]
+        @Binding var sideGains: [TarotRound.AttributedSideGain]
         
-        let allGains = TarotGameSideGain.allCases
+        let allGains = TarotSideGain.allCases
         
         let gridLayout = [GridItem](repeating: .init(.flexible()), count: 2)
         
-        @State private var selectedGain: TarotGameSideGain?
+        @State private var selectedGain: TarotSideGain?
         
         var body: some View {
             
@@ -335,7 +335,7 @@ struct TarotAddGameView: View {
                             ForEach(players.indices, id: \.self) { i in
                                 Button {
                                     
-                                    let newGain = TarotGame.SideGain(player: i, gain: selectedGainW)
+                                    let newGain = TarotRound.AttributedSideGain(player: i, gain: selectedGainW)
                                     
                                     sideGains.append(newGain)
                                     
@@ -368,7 +368,7 @@ struct TarotAddGameView: View {
         
     }
     
-    var game: TarotGame? {
+    var round: TarotRound? {
         guard let bet = bet,
               let mainPlayer = mainPlayer,
               let won = won,
@@ -376,54 +376,33 @@ struct TarotAddGameView: View {
         else { return nil }
         
         let secondPlayer = mainPlayer == secondPlayer ? nil : secondPlayer
-        return TarotGame(playerCount: gameList.players.count,
-                              mainPlayer: mainPlayer,
-                              secondPlayer: secondPlayer,
-                              won: won,
-                              overflow: overflow,
-                              bet: bet,
-                              sideGains: sideGains)
+        return TarotRound(playerCount: game.players.count,
+                          mainPlayer: mainPlayer,
+                          secondPlayer: secondPlayer,
+                          won: won,
+                          overflow: overflow,
+                          bet: bet,
+                          attributedSideGains: sideGains)
     }
 }
 
-struct TarotAddGameView_Previews: PreviewProvider {
-    
-    static let names_5p = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
-    
-    static let names_3p = ["Adrien", "Guillaume", "Arthur"]
-    
-    static var previews: some View {
-        TarotAddGameView(gameList: TarotScores(players: names_5p)!,
-                            game: TarotGame(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, sideGains: [
-                                .init(player: 0, gain: .misery),
-                                .init(player: 2, gain: .doublePoignee)
-                            ])) {
-                                game in
-                                print("New game: \(game.description)")
-                            } cancel: {
-                                print("Cancelled")
-                            }
-    }
-}
-
-struct CountAppAddGameSideGainsView_Previews: PreviewProvider {
-    
-    static var previews: some View {
-        Previewer()
-    }
-    
-    struct Previewer: View {
-        let names_5p = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
-        
-        @State var sideGains: [TarotGame.SideGain] = [
+#Preview {
+    TarotAddRoundView(
+        game: TarotGame(players: ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"])!,
+        round: TarotRound(playerCount: 5, mainPlayer: 1, secondPlayer: 0, won: true, overflow: .p0, bet: .garde, attributedSideGains: [
             .init(player: 0, gain: .misery),
-            .init(player: 1, gain: .petitAuBout)
-        ]
-        
-        var body: some View {
-            TarotAddGameView.SideGainsView(players: names_5p, sideGains: $sideGains)
-                .padding()
+            .init(player: 2, gain: .doublePoignee)
+        ])) {
+            round in
+            print("New game: \(round.description)")
+        } cancel: {
+            print("Cancelled")
         }
-    }
-    
+}
+
+#Preview {
+    TarotAddRoundView.SideGainsView(players: ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"], sideGains: .constant([
+        .init(player: 0, gain: .misery),
+        .init(player: 1, gain: .petitAuBout)
+    ]))
 }

@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension TarotGameBet: View {
+extension TarotBet: View {
     var body: some View {
         switch self {
         case .fausseDonne:
@@ -90,18 +90,13 @@ struct BetGardeContreView: View {
     }
 }
 
-struct BetViews_Previews: PreviewProvider {
-    
-    @State static var width: CGFloat = 50
-    
-    static var previews: some View {
-        VStack {
-            ForEach(TarotGameBet.allCases, id: 
-                        \.hashValue) {
-                $0
-                    .frame(width: width, height: width)
-                    .border(Color.blue)
-            }
+#Preview {
+    VStack {
+        ForEach(TarotBet.allCases, id: 
+                    \.hashValue) { bet in
+        bet
+                .frame(width: 50.0, height: 50.0)
+                .border(Color.blue)
         }
     }
 }

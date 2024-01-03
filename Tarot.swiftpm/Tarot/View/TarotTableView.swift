@@ -1,10 +1,10 @@
 import SwiftUI
 
 /// Main feature of the Counting App feature
-/// Needs a TarotScores in environment to display its content and add new games to it
+/// Needs a TarotGame in environment to display its content and add new games to it
 struct TarotTableView: View {
     
-    @EnvironmentObject private var gameList: TarotScores
+    @EnvironmentObject private var game: TarotGame
     @State var distributor: Int = 0
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
@@ -21,7 +21,7 @@ struct TarotTableView: View {
                         Spacer(minLength: 10)
                         
                         HStack {
-                            ForEach(gameList.players.indices, id: \.self) { pi in
+                            ForEach(game.players.indices, id: \.self) { pi in
                                 if pi == distributor {
                                     DistributorIndicator()
                                 } else {
@@ -34,15 +34,15 @@ struct TarotTableView: View {
                             switchDistributor()
                         }
                         
-                        TarotPlayerScoreTableView(gameList: gameList) {
+                        TarotPlayerScoreTableView(game: game) {
                             showInputGame = true
                             inputGameIndex = $1
                         }
                     }
                 }
                 .background {
-                    gameList.color
-                        .onChange(of: gameList.color) { newValue in
+                    game.color
+                        .onChange(of: game.color) { newValue in
                             print("on changed")
                         }
                 }
@@ -51,7 +51,7 @@ struct TarotTableView: View {
                     VStack {
                         Spacer()
                         HStack {
-                            ColorPicker("", selection: $gameList.color)
+                            ColorPicker("", selection: $game.color)
                                 .frame(width: 50, height: 50)
                             Spacer()
                         }
@@ -65,7 +65,7 @@ struct TarotTableView: View {
                     Spacer()
                     
                     Button("Fausse Done") {
-                        gameList.addFausseDonne(forPlayer: distributor)
+                        game.addFausseDonne(forPlayer: distributor)
                         switchDistributor()
                     }
                     .tarotButton()
@@ -85,29 +85,32 @@ struct TarotTableView: View {
                 
                 Group {
                     if let gi = inputGameIndex {
-                        TarotAddGameView(gameList: gameList,
-                                         game: gameList.gameHistory[gi].gameScore) { game in
-                            gameList.gameHistory[gi].gameScore = game
-                            gameList.updateCumulated()
+                        TarotAddRoundView(
+                            game: game,
+                            round: game.rounds[gi].round
+                        ) { round in
+                            game.rounds[gi].round = round
+                            game.updateCumulated()
                             showInputGame = false
                             inputGameIndex = nil
-                            try? gameList.save()
+                            
+                            try? TarotGameManager_LocalFiles().save(game: game)
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
                         } delete: {
                             showInputGame = false
                             inputGameIndex = nil
-                            gameList.gameHistory.remove(at: gi)
-                            try? gameList.save()
+                            game.rounds.remove(at: gi)
+                            try? TarotGameManager_LocalFiles().save(game: game)
                         }
                     } else {
-                        TarotAddGameView(gameList: gameList) { game in
-                            gameList.gameHistory.append((game, []))
-                            gameList.updateCumulated()
+                        TarotAddRoundView(game: game) { round in
+                            game.rounds.append((round, []))
+                            game.updateCumulated()
                             showInputGame = false
                             inputGameIndex = nil
-                            try? gameList.save()
+                            try? TarotGameManager_LocalFiles().save(game: game)
                             switchDistributor()
                         } cancel: {
                             showInputGame = false
@@ -146,17 +149,11 @@ struct TarotTableView: View {
     }
     
     func switchDistributor() {
-        distributor = (distributor + 1) % gameList.players.count
+        distributor = (distributor + 1) % game.players.count
     }
 }
 
-struct TarotTableView_Previews: PreviewProvider {
-    
-    static let names = ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"]
-    
-    static var previews: some View {
-        TarotTableView()
-            .environmentObject(TarotScores(players: names)!)
-    }
+#Preview {
+    TarotTableView()
+        .environmentObject(TarotGame(players: ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"])!)
 }
-

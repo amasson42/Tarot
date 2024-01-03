@@ -2,29 +2,31 @@ import SwiftUI
 
 struct TarotSelectOldGameView: View {
     
-    var action: (TarotScores) -> () = { _ in }
+    let gameManager: any TarotGameManagerProtocol
+    
+    var action: (TarotGame) -> () = { _ in }
     var cancel: () -> () = {}
     
-    @State var savedGames: [TarotScores.Header] = []
+    @State var savedGames: [TarotGame.Header] = []
     
     var body: some View {
         List {
             ForEach(savedGames) { savedGame in
                 Button {
                     do {
-                        let game = try savedGame.load()
+                        let game = try gameManager.load(header: savedGame)
                         action(game)
                     } catch {
                         print("error loading game \(savedGame.name): \(error.localizedDescription)")
                     }
                 } label: {
-                    TarotScoresHeaderView(header: savedGame)
+                    TarotGameHeaderView(header: savedGame)
                 }
             }
             .onDelete { indices in
                 for index in indices {
                     do {
-                        try savedGames[index].delete()
+                        try gameManager.delete(header: savedGames[index])
                     } catch {
                         print("error deleting game \(savedGames[index]): \(error.localizedDescription)")
                     }
@@ -33,14 +35,14 @@ struct TarotSelectOldGameView: View {
             }
         }
         .onAppear {
-            savedGames = TarotScores.listGames()
+            savedGames = gameManager.getAllHeaders()
         }
     }
 }
 
-struct TarotScoresHeaderView: View {
+struct TarotGameHeaderView: View {
     
-    let header: TarotScores.Header
+    let header: TarotGame.Header
     
     var body: some View {
         VStack {
@@ -73,11 +75,6 @@ struct TarotScoresHeaderView: View {
 }
 
 #Preview {
-    TarotSelectOldGameView()
+    TarotSelectOldGameView(gameManager: TarotGameManager_Mock())
 }
 
-struct TarotSelectOldGameView_Previews: PreviewProvider {
-    static var previews: some View {
-        TarotSelectOldGameView()
-    }
-}

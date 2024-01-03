@@ -1,6 +1,6 @@
 import Foundation
 
-enum TarotGameBet: String, Codable, CaseIterable, CustomStringConvertible {
+enum TarotBet: String, Codable, CaseIterable, CustomStringConvertible {
     case fausseDonne = "Fausse Done"
     case petite = "Petite"
     case pouce = "Pouce"
@@ -21,12 +21,12 @@ enum TarotGameBet: String, Codable, CaseIterable, CustomStringConvertible {
         }
     }
     
-    static var bets: [TarotGameBet] {
+    static var bets: [TarotBet] {
         return [.petite, .pouce, .garde, .gardeSans, .gardeContre]
     }
 }
 
-enum TarotGameOverflow: UInt8, Codable, CaseIterable {
+enum TarotRoundOverflow: UInt8, Codable, CaseIterable {
     case p0 = 0
     case p10 = 10
     case p20 = 20
@@ -36,7 +36,7 @@ enum TarotGameOverflow: UInt8, Codable, CaseIterable {
     var value: Int { Int(rawValue) }
 }
 
-enum TarotGameSideGain: Codable, CaseIterable, CustomStringConvertible {
+enum TarotSideGain: Codable, CaseIterable, CustomStringConvertible {
     case misery
     case doubleMisery
     case poignee
@@ -73,17 +73,17 @@ enum TarotGameSideGain: Codable, CaseIterable, CustomStringConvertible {
     }
 }
 
-struct TarotGame: Codable {
+struct TarotRound: Codable {
     
     /// Min and Max number of players
     static let playerRange = 3...5
     
-    struct SideGain: Codable, Equatable {
+    struct AttributedSideGain: Codable, Equatable {
         let player: Int
-        let gain: TarotGameSideGain
+        let gain: TarotSideGain
     }
     
-    /// Number of players in the game
+    /// Number of players in the round
     let playerCount: Int
     /// Index of player making the bet
     var mainPlayer: Int = 0
@@ -96,22 +96,22 @@ struct TarotGame: Codable {
     var won: Bool = true
     { didSet { updateScores() }}
     /// How much of overflow ? (0, 10, 20, 30 ?)
-    var overflow: TarotGameOverflow = .p0
+    var overflow: TarotRoundOverflow = .p0
     { didSet { updateScores() }}
     /// Type of bet
-    var bet: TarotGameBet = .petite
+    var bet: TarotBet = .petite
     { didSet { updateScores() }}
     /// Side gains
-    var sideGains: [SideGain] = []
+    var attributedSideGains: [AttributedSideGain] = []
     { didSet { updateScores() }}
     
     private(set) var scores: [Int] = []
     
     init(playerCount: Int,
          mainPlayer: Int = 0, secondPlayer: Int? = nil,
-         won: Bool = true, overflow: TarotGameOverflow = .p0, bet: TarotGameBet = .petite,
-         sideGains: [SideGain] = []) {
-        assert(TarotGame.playerRange.contains(playerCount), "Invalid player count")
+         won: Bool = true, overflow: TarotRoundOverflow = .p0, bet: TarotBet = .petite,
+         attributedSideGains: [AttributedSideGain] = []) {
+        assert(TarotRound.playerRange.contains(playerCount), "Invalid player count")
         assert(mainPlayer < playerCount)
         if let secondPlayer = secondPlayer {
             assert(secondPlayer < playerCount)
@@ -123,7 +123,7 @@ struct TarotGame: Codable {
         self.won = won
         self.overflow = overflow
         self.bet = bet
-        self.sideGains = sideGains
+        self.attributedSideGains = attributedSideGains
         self.scores = self.calculateScores()
         assert(self.scores.reduce(0, +) == 0)
         assert(self.scores.count == self.playerCount)
@@ -135,7 +135,7 @@ struct TarotGame: Codable {
     
     func calculateScores() -> [Int] {
         
-        /// The amount of points put in the game by the defending players individually
+        /// The amount of points put in the round by the defending players individually
         let betPoints = bet.pointsFactor * 10 + overflow.value
         
         /// Final scores
@@ -159,7 +159,7 @@ struct TarotGame: Codable {
         }
         // -> here the `scores` has a total of zero
         
-        // if the game is won by attacking player, then we revert the score value for everyone
+        // if the round is won by attacking player, then we revert the score value for everyone
         if won {
             for i in scores.indices {
                 scores[i] = -scores[i]
@@ -167,10 +167,10 @@ struct TarotGame: Codable {
         }
         
         // all gains have a factor value. Every other players will lose this value and the gained player will recieve the total of those scores
-        sideGains.forEach { sideGain in
+        attributedSideGains.forEach { attributedSideGain in
             for i in scores.indices {
-                let points = sideGain.gain.value * 10
-                if i == sideGain.player {
+                let points = attributedSideGain.gain.value * 10
+                if i == attributedSideGain.player {
                     scores[i] += points * (playerCount - 1)
                 } else {
                     scores[i] -= points 
@@ -193,20 +193,20 @@ struct TarotGame: Codable {
         }
     }
     
-    func sideGain(forPlayer player: Int) -> [TarotGameSideGain] {
-        self.sideGains
+    func sideGain(forPlayer player: Int) -> [TarotSideGain] {
+        self.attributedSideGains
             .filter { $0.player == player }
             .map { $0.gain }
     }
     
 }
 
-extension TarotGame: CustomStringConvertible {
+extension TarotRound: CustomStringConvertible {
     
     func description(withPlayers players: [String]) -> String {
         assert(players.count == playerCount)
         
-        let gameSetupWords = "Partie de \(playerCount) joueurs"
+        let roundSetupWords = "Partie de \(playerCount) joueurs"
         
         let betWords = "\(players[mainPlayer]) \(won ? "gagne" : "perd") une \(bet.description.lowercased()) \(won ? "faite" : "chutée") de \(overflow.value)"
         
@@ -218,11 +218,11 @@ extension TarotGame: CustomStringConvertible {
             }
         }()
         
-        let sideGainsWords = sideGains.reduce("") { r, pg in
+        let sideGainsWords = attributedSideGains.reduce("") { r, pg in
             let gainWord: String
             switch pg.gain {
             case .misery: gainWord = "a une misère"
-                case .doubleMisery: gainWord = "a une double misère"
+            case .doubleMisery: gainWord = "a une double misère"
             case .poignee: gainWord = "a une poignée"
             case .doublePoignee: gainWord = "a une double poignée"
             case .petitAuBout: gainWord = "a fait le dernier plie avec le petit"
@@ -233,7 +233,7 @@ extension TarotGame: CustomStringConvertible {
             return r + "\n\(players[pg.player]) \(gainWord)."
         }
         
-        return "\(gameSetupWords), \(betWords) \(friendWord).\(sideGainsWords)"
+        return "\(roundSetupWords), \(betWords) \(friendWord).\(sideGainsWords)"
     }
     
     var description: String {

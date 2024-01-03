@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension TarotGameSideGain: View {
+extension TarotSideGain: View {
     var body: some View {
         switch self {
         case .misery:

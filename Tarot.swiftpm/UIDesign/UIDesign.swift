@@ -35,7 +35,9 @@ struct PlayerNameBox: ViewModifier {
 }
 
 struct BetSelector: ViewModifier {
-    let bet: TarotGameBet
+
+    let bet: TarotBet
+
     func body(content: Content) -> some View {
         switch bet {
         case .petite:
@@ -81,7 +83,7 @@ extension View {
             .modifier(PlayerNameBox(active: active))
     }
     
-    func betSelector(bet: TarotGameBet, selected: Bool) -> some View {
+    func betSelector(bet: TarotBet, selected: Bool) -> some View {
         if selected {
             return AnyView(modifier(BetSelector(bet: bet)))
         } else {
@@ -94,29 +96,27 @@ extension View {
     }
 }
 
-struct UIDesign_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            Text("Active")
-                .playerNameBox(active: true)
-            Text("Inactive")
-                .playerNameBox(active: false)
-            HStack {
-                ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
-                    bi
-                        .frame(width: 40, height: 40)
-                        .betSelector(bet: bi, selected: true)
-                }
-            }
-            HStack {
-                ForEach(TarotGameBet.bets, id: \.hashValue) { bi in
-                    bi
-                        .frame(width: 40, height: 40)
-                        .betSelector(bet: bi, selected: false)
-                }
+#Preview {
+    VStack {
+        Text("Active")
+            .playerNameBox(active: true)
+        Text("Inactive")
+            .playerNameBox(active: false)
+        HStack {
+            ForEach(TarotBet.bets, id: \.hashValue) { bi in
+                bi
+                    .frame(width: 40, height: 40)
+                    .betSelector(bet: bi, selected: true)
             }
         }
-        .padding()
-        .background(.gray)
+        HStack {
+            ForEach(TarotBet.bets, id: \.hashValue) { bi in
+                bi
+                    .frame(width: 40, height: 40)
+                    .betSelector(bet: bi, selected: false)
+            }
+        }
     }
+    .padding()
+    .background(.gray)
 }
