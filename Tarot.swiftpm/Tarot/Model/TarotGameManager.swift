@@ -1,4 +1,18 @@
+import Combine
 import Foundation
+
+
+protocol TarotGameManagerProtocol: AnyObject, ObservableObject {
+    
+    func getAllHeaders() -> [TarotGame.Header]
+    
+    func load(header: TarotGame.Header) throws -> TarotGame
+    
+    func save(game: TarotGame) throws
+    
+    func delete(header: TarotGame.Header) throws
+    
+}
 
 class TarotGameManager_LocalFiles: TarotGameManagerProtocol {
     
@@ -55,19 +69,58 @@ class TarotGameManager_LocalFiles: TarotGameManagerProtocol {
     func delete(header: TarotGame.Header) throws {
         try FileManager.default.removeItem(at: header.file)
     }
-//    
-//#if DEBUG
-//    private init(file: URL, name: String, date: Date, scores: [(String, Int)]) {
-//        self.id = UUID()
-//        (self.file, self.name, self.date, self.scores) = (file, name, date, scores)
-//        self.color = .gray
-//    }
-//    
-//    static let example0 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAm", date: Date.now, scores: [("Gael", -20), ("Melany", 20), ("Exav", -10), ("Ambroise", 10)])
-//    static let example1 = Self(file: URL(string: "/dev/null")!, name: "GaMeExAmPl", date: Date.now.advanced(by: 3600), scores: [("Gael", -200), ("Melany", 200), ("Exav", -150), ("Ambroise", 150), ("Pleb", 0)])
-//    static let example2 = Self(file: URL(string: "/dev/null")!, name: "GaMeEx", date: Date.now.advanced(by: 86400), scores: [("Gael", -40), ("Melany", 30), ("Execve", 10)])
-//#endif
-//    
+
 }
 
 
+class TarotGameManager_Mock: TarotGameManagerProtocol {
+    
+    var games: [TarotGame] = [
+        TarotGame(
+            players: ["A", "B", "C"],
+            name: "FirstGame",
+            color: .red,
+            createdDate: .now
+        )!,
+        TarotGame(
+            players: ["A", "B", "C", "D"],
+            name: "SecondGame",
+            color: .red,
+            createdDate: .now
+        )!,
+        TarotGame(
+            players: ["A", "B", "C"],
+            name: "ThirdGame",
+            color: .red,
+            createdDate: .now
+        )!,
+        
+    ]
+    
+    func getAllHeaders() -> [TarotGame.Header] {
+        [
+            TarotGame.Header(),
+            TarotGame.Header(),
+            TarotGame.Header(),
+        ]
+    }
+    
+    func load(header: TarotGame.Header) throws -> TarotGame {
+        TarotGame(
+            players: header.scores.map { $0.playerName },
+            id: header.id,
+            name: header.name,
+            color: header.color,
+            createdDate: header.date
+        )!
+    }
+    
+    func save(game: TarotGame) throws {
+        
+    }
+    
+    func delete(header: TarotGame.Header) throws {
+        
+    }
+    
+}
