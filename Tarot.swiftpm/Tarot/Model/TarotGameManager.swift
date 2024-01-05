@@ -4,13 +4,13 @@ import Foundation
 
 protocol TarotGameManagerProtocol: AnyObject, ObservableObject {
     
-    func getAllHeaders() -> [TarotGame.Header]
+    func getAllHeaders() async -> [TarotGame.Header]
     
-    func load(header: TarotGame.Header) throws -> TarotGame
+    func load(header: TarotGame.Header) async throws -> TarotGame
     
-    func save(game: TarotGame) throws
+    func save(game: TarotGame) async throws
     
-    func delete(header: TarotGame.Header) throws
+    func delete(header: TarotGame.Header) async throws
     
 }
 

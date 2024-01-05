@@ -2,8 +2,6 @@ import SwiftUI
 
 struct GenericCountView: View {
     
-    var exitClosure: (() -> ())?
-    
     struct Player: Codable {
         var name: String = ""
         var points: Int = 0
@@ -66,9 +64,6 @@ struct GenericCountView: View {
                 .tarotButton()
             }
             
-            if let exitClosure = exitClosure {
-                Button("Exit", action: exitClosure)
-            }
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)

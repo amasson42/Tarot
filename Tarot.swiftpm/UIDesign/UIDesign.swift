@@ -1,5 +1,11 @@
 import SwiftUI
 
+extension Color {
+    static func randomTheme() -> Self {
+        return .black
+    }
+}
+
 // MARK: PlayerNameBox
 struct PlayerNameBox: ViewModifier {
     
@@ -103,17 +109,17 @@ extension View {
         Text("Inactive")
             .playerNameBox(active: false)
         HStack {
-            ForEach(TarotBet.bets, id: \.hashValue) { bi in
-                bi
+            ForEach(TarotBet.bets, id: \.hashValue) { bet in
+                TarotBetView(bet: bet)
                     .frame(width: 40, height: 40)
-                    .betSelector(bet: bi, selected: true)
+                    .betSelector(bet: bet, selected: true)
             }
         }
         HStack {
-            ForEach(TarotBet.bets, id: \.hashValue) { bi in
-                bi
+            ForEach(TarotBet.bets, id: \.hashValue) { bet in
+                TarotBetView(bet: bet)
                     .frame(width: 40, height: 40)
-                    .betSelector(bet: bi, selected: false)
+                    .betSelector(bet: bet, selected: false)
             }
         }
     }

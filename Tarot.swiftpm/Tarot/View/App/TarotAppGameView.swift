@@ -1,14 +1,19 @@
 import SwiftUI
 
-/// Main feature of the Counting App feature
-/// Needs a TarotGame in environment to display its content and add new games to it
-struct TarotTableView: View {
+struct TarotAppGameView: View {
     
-    @EnvironmentObject private var game: TarotGame
+    @ObservedObject var game: TarotGame
+
+    @EnvironmentObject private var viewModel: TarotAppViewModel
+
     @State var distributor: Int = 0
     @State private var showInputGame: Bool = false
     @State private var inputGameIndex: Int? = nil
-    
+
+    private var gameManager: some TarotGameManagerProtocol {
+        self.viewModel.gameManager
+    }
+
     var body: some View {
         
         ZStack {
@@ -21,7 +26,7 @@ struct TarotTableView: View {
                         Spacer(minLength: 10)
                         
                         HStack {
-                            ForEach(game.players.indices, id: \.self) { pi in
+                            ForEach(self.game.players.indices, id: \.self) { pi in
                                 if pi == distributor {
                                     DistributorIndicator()
                                 } else {
@@ -34,15 +39,16 @@ struct TarotTableView: View {
                             switchDistributor()
                         }
                         
-                        TarotPlayerScoreTableView(game: game) {
+                        TarotPlayerScoreTableView(game: self.game) {
+                            cellColumn, cellRow in
                             showInputGame = true
-                            inputGameIndex = $1
+                            inputGameIndex = cellRow
                         }
                     }
                 }
                 .background {
-                    game.color
-                        .onChange(of: game.color) { newValue in
+                    self.game.color
+                        .onChange(of: self.game.color) { newValue in
                             print("on changed")
                         }
                 }
@@ -51,7 +57,7 @@ struct TarotTableView: View {
                     VStack {
                         Spacer()
                         HStack {
-                            ColorPicker("", selection: $game.color)
+                            ColorPicker("", selection: self.$game.color)
                                 .frame(width: 50, height: 50)
                             Spacer()
                         }
@@ -65,26 +71,26 @@ struct TarotTableView: View {
                     Spacer()
                     
                     Button("Fausse Done") {
-                        game.addFausseDonne(forPlayer: distributor)
-                        switchDistributor()
+                        self.game.addFausseDonne(forPlayer: self.distributor)
+                        self.switchDistributor()
                     }
                     .tarotButton()
                     
                     Button("Add game") {
-                        showInputGame = true
+                        self.showInputGame = true
                     }
                     .tarotButton()
                     
                 }
             }
             .padding()
-            .disabled(showInputGame)
-            .blur(radius: showInputGame ? 5 : 0)
+            .disabled(self.showInputGame)
+            .blur(radius: self.showInputGame ? 5 : 0)
             
-            if showInputGame {
+            if self.showInputGame {
                 
                 Group {
-                    if let gi = inputGameIndex {
+                    if let gi = self.inputGameIndex {
                         TarotAddRoundView(
                             game: game,
                             round: game.rounds[gi].round
@@ -94,7 +100,9 @@ struct TarotTableView: View {
                             showInputGame = false
                             inputGameIndex = nil
                             
-                            try? TarotGameManager_LocalFiles().save(game: game)
+                            Task {
+                                try? await self.gameManager.save(game: game)
+                            }
                         } cancel: {
                             showInputGame = false
                             inputGameIndex = nil
@@ -128,6 +136,7 @@ struct TarotTableView: View {
         
     }
     
+    
     @ViewBuilder func DistributorIndicator() -> some View {
         ZStack {
             Image(systemName: "arrow.down")
@@ -149,11 +158,12 @@ struct TarotTableView: View {
     }
     
     func switchDistributor() {
-        distributor = (distributor + 1) % game.players.count
+        self.distributor = (self.distributor + 1) % self.game.players.count
     }
+    
 }
 
 #Preview {
-    TarotTableView()
-        .environmentObject(TarotGame(players: ["Adrien", "Guillaume", "Arthur", "Nicolas", "Maman"])!)
+    TarotAppGameView(game: TarotGame(players: ["Arthur", "Guillaume", "Adrien"])!)
+        .environmentObject(TarotAppViewModel())
 }

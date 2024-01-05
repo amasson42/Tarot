@@ -127,7 +127,7 @@ struct TarotPlayerScoreTableView: View {
                         
                         ZStack {
                             if pi == round.mainPlayer {
-                                round.bet
+                                TarotBetView(bet: round.bet)
                                     .frame(height: 30)
                                     .opacity(0.5)
                             }
@@ -143,7 +143,7 @@ struct TarotPlayerScoreTableView: View {
                         }
                         
                         if !round.sideGain(forPlayer: pi).isEmpty {
-                            SideGainView(sideGains: round.sideGain(forPlayer: pi))
+                            SideGainsView(sideGains: round.sideGain(forPlayer: pi))
                         }
                         
                     }
@@ -158,45 +158,7 @@ struct TarotPlayerScoreTableView: View {
             }
         }
         
-        struct GameCumulView: View {
-            var gameCumul: TarotGame.ScoreCumul
-            
-            var body: some View {
-                VStack {
-                    Text("\(gameCumul.score)")
-                        .bold()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.2)
-                        .frame(maxWidth: .infinity)
-                    
-                    HStack(spacing: 0) {
-                        
-                        PositionChangerView(positionChanger: gameCumul.positionChanger)
-                            .minimumScaleFactor(0.2)
-                        
-                        ClassmentView(classment: gameCumul.classment)
-                        
-                    }
-                }
-            }
-            
-            @ViewBuilder func PositionChangerView(positionChanger: TarotGame.PositionChanger) -> some View {
-                switch positionChanger {
-                case .stay:
-                    Text("-")
-                        .foregroundColor(.gray)
-                case .increase:
-                    Text("↗")
-                        .foregroundColor(.green)
-                case .decrease:
-                    Text("↘")
-                        .foregroundColor(.red)
-                }
-            }
-            
-        }
-        
-        struct SideGainView: View {
+        struct SideGainsView: View {
             let sideGains: [TarotSideGain]
             
             var body: some View {
@@ -211,27 +173,7 @@ struct TarotPlayerScoreTableView: View {
         
     }
     
-    struct ClassmentView: View {
-        var classment: Int
-        
-        var body: some View {
-            switch classment {
-            case 1:
-                Text("🥇")
-            case 2:
-                Text("🥈")
-            case 3:
-                Text("🥉")
-            case 4:
-                Text("💝")
-            case 5:
-                Text("💩")
-            default:
-                Text(" ")
-            }
-            
-        }
-    }
+    
 }
 
 #Preview {

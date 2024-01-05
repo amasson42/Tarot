@@ -2,8 +2,6 @@ import SwiftUI
 
 struct JetonsBoardView: View {
     
-    var exitClosure: (() -> ())?
-    
     @State var players: [JetonsBoardPlayer] = ["A", "B", "C", "D", "E", "F", "G", "H"]
     
     func stackPosition(at p: CGFloat, in proxy: GeometryProxy) -> CGPoint {
@@ -59,6 +57,7 @@ struct JetonsBoardView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GrassBackground())
+        .fullscreenable()
         
     }
 }
@@ -74,7 +73,7 @@ struct JetonsStackView: View {
             .onDrag {
                 print("Player \(player.name)")
                 return NSItemProvider()
-            } preview: { 
+            } preview: {
                 Color.green.frame(width: 40, height: 40)
             }
             .onDrop(of: ["jetons"], delegate: dropDelegate)

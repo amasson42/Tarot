@@ -3,7 +3,9 @@ import SwiftUI
 /// Utility window from Counting App feature
 /// Can create a new TarotRound from interfaces inputs and will send the result in the action closure
 struct TarotAddRoundView: View {
+
     @ObservedObject var game: TarotGame
+
     var action: (TarotRound) -> ()
     var cancel: () -> ()
     var delete: (() -> ())?
@@ -41,8 +43,8 @@ struct TarotAddRoundView: View {
             ScrollView(.vertical) {
                 VStack {
                     
-                    if bet == .fausseDonne {
-                        bet?
+                    if let bet, bet == .fausseDonne {
+                        TarotBetView(bet: bet)
                             .frame(maxWidth: 200)
                         
                         PlayerPickerView(players: game.players, main: $mainPlayer, second: .constant(nil))
@@ -108,20 +110,20 @@ struct TarotAddRoundView: View {
             GeometryReader { proxy in
                 VStack {
                     HStack(spacing: 0) {
-                        ForEach(TarotBet.bets, id: \.hashValue) { bi in
+                        ForEach(TarotBet.bets, id: \.hashValue) { bet in
                             Button {
                                 withAnimation {
-                                    bet = bi
+                                    self.bet = bet
                                 }
                             } label: {
                                 VStack {
-                                    bi
+                                    TarotBetView(bet: bet)
                                         .frame(height: 50)
-                                        .matchedGeometryEffect(id: bi, in: betAnimation, isSource: true)
+                                        .matchedGeometryEffect(id: bet, in: betAnimation, isSource: true)
                                 }
                                 .background(WoodenBackground())
                                 .frame(width: proxy.size.width / CGFloat(TarotBet.bets.count), height: 80)
-                                .betSelector(bet: bi, selected: bi == bet)
+                                .betSelector(bet: bet, selected: self.bet == bet)
                                 
                             }
                         }

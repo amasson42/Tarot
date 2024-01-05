@@ -1,8 +1,11 @@
 import SwiftUI
 
-extension TarotBet: View {
+struct TarotBetView: View {
+    
+    let bet: TarotBet
+
     var body: some View {
-        switch self {
+        switch self.bet {
         case .fausseDonne:
             BetFausseDonneView()
         case .petite:
@@ -92,9 +95,9 @@ struct BetGardeContreView: View {
 
 #Preview {
     VStack {
-        ForEach(TarotBet.allCases, id: 
-                    \.hashValue) { bet in
-        bet
+        ForEach(TarotBet.allCases,
+                id: \.hashValue) { bet in
+            TarotBetView(bet: bet)
                 .frame(width: 50.0, height: 50.0)
                 .border(Color.blue)
         }
