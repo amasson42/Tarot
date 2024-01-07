@@ -2,49 +2,63 @@ import SwiftUI
 
 struct TarotAppRootView: View {
     
-    @StateObject private var viewModel: TarotAppViewModel = TarotAppViewModel()
+    @StateObject private var appViewModel: TarotAppViewModel = TarotAppViewModel()
     
     var body: some View {
         ZStack {
-            switch self.viewModel.state {
+            switch self.appViewModel.state {
             case .idle:
-                idleView()
+                IdleView()
             case .creatingNewGame:
-                creatingGameView()
+                CreatingGameView()
             case .playing(let game):
-                playingView(game: game)
+                PlayingView(game: game)
             }
-        }
-        .environmentObject(self.viewModel)
-    }
-    
-    @ViewBuilder
-    func idleView() -> some View {
-        VStack {
-            ScrollView {
-                TarotGamePickerView(gameManager: self.viewModel.gameManager) { game in
-                    self.viewModel.openGame(game)
+            
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    FullscreenToggleButton()
+                        .padding()
                 }
             }
         }
-        
-        Button {
-            self.viewModel.createNewGame()
-        } label: {
-            Image(systemName: "plus.square.fill")
+        .environmentObject(self.appViewModel)
+    }
+    
+    @ViewBuilder
+    func IdleView() -> some View {
+        VStack {
+            
+            TarotGamePickerView(gameManager: self.appViewModel.gameManager) { game in
+                self.appViewModel.openGame(game)
+            }
+            .padding()
+            
+            Button {
+                self.appViewModel.createNewGame()
+            } label: {
+                Image(systemName: "plus")
+                    .resizable()
+                    .frame(width: 90, height: 90)
+                    .tarotButton()
+            }
+            .padding()
         }
     }
     
     @ViewBuilder
-    func creatingGameView() -> some View {
+    func CreatingGameView() -> some View {
         TarotGameCreationView { createdGame in
-            self.viewModel.openGame(createdGame)
+            self.appViewModel.openGame(createdGame)
         }
     }
     
     @ViewBuilder
-    func playingView(game: TarotGame) -> some View {
+    func PlayingView(game: TarotGame) -> some View {
         TarotAppGameView(game: game)
+            .environmentObject(TarotGameViewModel(game: game, gameManager: self.appViewModel.gameManager))
     }
     
 }

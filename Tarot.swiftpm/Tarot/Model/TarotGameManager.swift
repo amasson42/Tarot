@@ -18,7 +18,7 @@ class TarotGameManager_LocalFiles: TarotGameManagerProtocol {
     
     func getAllHeaders() -> [TarotGame.Header] {
         do {
-            return try FileManager.default
+            let headers = try FileManager.default
                 .contentsOfDirectory(at: Self.savingDirectory,
                                      includingPropertiesForKeys: nil)
                 .compactMap { fileUrl in
@@ -27,6 +27,7 @@ class TarotGameManager_LocalFiles: TarotGameManagerProtocol {
                 .sorted {
                     $0.date > $1.date
                 }
+            return headers
         } catch {
             return []
         }

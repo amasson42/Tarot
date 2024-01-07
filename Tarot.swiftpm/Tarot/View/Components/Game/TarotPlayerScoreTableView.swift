@@ -21,33 +21,33 @@ struct TarotPlayerScoreTableView: View {
         LazyVGrid(columns: layout, spacing: 0, pinnedViews: .sectionHeaders) {
             Section(header: header) {
                 
-                ForEach(game.rounds.indices, id: \.self) { gi in
-                    ForEach(game.players.indices, id: \.self) { pi in
+                ForEach(game.rounds.indices, id: \.self) { roundIndex in
+                    ForEach(game.players.indices, id: \.self) { playerIndex in
                         
                         
                         Button {
-                            cellAction(pi, gi)
+                            cellAction(playerIndex, roundIndex)
                         } label: {
                             PlayerScoreView(
-                                round: game.rounds[gi].round,
-                                cumulated: game.rounds[gi].cumulated,
-                                pi: pi)
+                                round: game.rounds[roundIndex].round,
+                                cumulated: game.rounds[roundIndex].cumulated,
+                                playerIndex: playerIndex)
                         }
                         .foregroundColor(.primary)
-                        .id(game.players.count + gi * game.players.count + pi)
+                        .id(game.players.count + roundIndex * game.players.count + playerIndex)
                         
                     }
                 }
                 
-                ForEach(game.players.indices, id: \.self) { pi in
+                ForEach(game.players.indices, id: \.self) { playerIndex in
                     VStack(alignment: .center) {
-                        Text("\(game.finalScores[pi].score)")
+                        Text("\(game.finalScores[playerIndex].score)")
                             .fontWeight(.heavy)
                             .lineLimit(1)
-                            .id(game.players.count + game.players.count * game.rounds.count + pi)
+                            .id(game.players.count + game.players.count * game.rounds.count + playerIndex)
                         
-                        ClassmentView(classment: game.finalScores[pi].classment)
-                            .modifier(EnormeMerdeModifier(game: game, playerIndex: pi))
+                        ClassmentView(classment: game.finalScores[playerIndex].classment)
+                            .modifier(EnormeMerdeModifier(game: game, playerIndex: playerIndex))
                     }
                 }
             }
@@ -57,7 +57,7 @@ struct TarotPlayerScoreTableView: View {
     
     struct EnormeMerdeModifier: ViewModifier {
         
-        let scale: CGFloat?
+        let scale: CGFloat
         
         init(game: TarotGame, playerIndex: Int) {
             if game.finalScores[playerIndex].classment == 5 {
@@ -76,7 +76,7 @@ struct TarotPlayerScoreTableView: View {
                 self.scale = noobFactor
                 
             } else {
-                self.scale = nil
+                self.scale = 1.0
             }
         }
         
@@ -84,7 +84,7 @@ struct TarotPlayerScoreTableView: View {
             return Text(" ")
                 .overlay {
                     content
-                        .font(.custom("system", size: 20 * (scale ?? 1.0 )))
+                        .font(.custom("system", size: 20 * scale))
                         .frame(width: 200, height: 20)
                 }
         }
@@ -93,12 +93,12 @@ struct TarotPlayerScoreTableView: View {
     
     @ViewBuilder var header: some View {
         HStack {
-            ForEach(game.players.indices, id: \.self) { pi in
-                Text(game.players[pi])
+            ForEach(game.players.indices, id: \.self) { playerIndex in
+                Text(game.players[playerIndex])
                     .fontWeight(.bold)
                     .lineLimit(1)
                     .minimumScaleFactor(0.1)
-                    .id(pi)
+                    .id(playerIndex)
             }
             .frame(maxWidth: .infinity)
         }
@@ -109,11 +109,11 @@ struct TarotPlayerScoreTableView: View {
         
         let round: TarotRound
         let cumulated: [TarotGame.ScoreCumul]
-        let pi: Int
+        let playerIndex: Int
         
-        var score: Int { round.score(forPlayer: pi) }
+        var score: Int { round.score(forPlayer: playerIndex) }
         var wonColor: Color {
-            Color([#colorLiteral(red: 0.5607469081878662, green: 0.9999999403953552, blue: 0.5676395297050476, alpha: 1.0), #colorLiteral(red: 1.0000003576278687, green: 0.4104778468608856, blue: 0.33868008852005005, alpha: 1.0)][round.won(forPlayer: pi) ? 0 : 1])
+            Color([#colorLiteral(red: 0.5607469081878662, green: 0.9999999403953552, blue: 0.5676395297050476, alpha: 1.0), #colorLiteral(red: 1.0000003576278687, green: 0.4104778468608856, blue: 0.33868008852005005, alpha: 1.0)][round.won(forPlayer: playerIndex) ? 0 : 1])
         }
         
         var body: some View {
@@ -126,7 +126,7 @@ struct TarotPlayerScoreTableView: View {
                     VStack(spacing: -10) {
                         
                         ZStack {
-                            if pi == round.mainPlayer {
+                            if playerIndex == round.mainPlayer {
                                 TarotBetView(bet: round.bet)
                                     .frame(height: 30)
                                     .opacity(0.5)
@@ -142,14 +142,14 @@ struct TarotPlayerScoreTableView: View {
                                     .blur(radius: 3))
                         }
                         
-                        if !round.sideGain(forPlayer: pi).isEmpty {
-                            SideGainsView(sideGains: round.sideGain(forPlayer: pi))
+                        if !round.sideGain(forPlayer: playerIndex).isEmpty {
+                            SideGainsView(sideGains: round.sideGain(forPlayer: playerIndex))
                         }
                         
                     }
                     .frame(maxWidth: .infinity)
                     
-                    GameCumulView(gameCumul: cumulated[pi])
+                    GameCumulView(gameCumul: cumulated[playerIndex])
                     
                     Divider()
                     

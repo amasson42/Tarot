@@ -13,3 +13,5 @@ TODO:
 - Show bet names before selection
 - Fix "Fausse Donne" Typo
 - Partage de partie
+- Game settings button
+- Close game button

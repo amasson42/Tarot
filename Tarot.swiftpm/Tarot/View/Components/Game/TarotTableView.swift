@@ -129,26 +129,6 @@ struct TarotTableView: View {
         
     }
     
-    @ViewBuilder func DistributorIndicator() -> some View {
-        ZStack {
-            Image(systemName: "arrow.down")
-                .foregroundColor(Color.indigo)
-                .offset(x: 0, y: 10)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: 15))
-                .shadow(radius: 2)
-                .offset(x: 5, y: 1)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: 0))
-                .shadow(radius: 2)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: -15))
-                .shadow(radius: 3)
-                .offset(x: -5, y: 1)
-                .rotation3DEffect(Angle(degrees: 20), axis: (0, 1, 0))
-        }
-    }
-    
     func switchDistributor() {
         distributor = (distributor + 1) % game.players.count
     }

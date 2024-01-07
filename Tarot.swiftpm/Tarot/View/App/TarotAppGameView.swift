@@ -3,164 +3,145 @@ import SwiftUI
 struct TarotAppGameView: View {
     
     @ObservedObject var game: TarotGame
-
-    @EnvironmentObject private var viewModel: TarotAppViewModel
-
-    @State var distributor: Int = 0
-    @State private var showInputGame: Bool = false
-    @State private var inputGameIndex: Int? = nil
-
-    private var gameManager: some TarotGameManagerProtocol {
-        self.viewModel.gameManager
-    }
-
+    
+    @EnvironmentObject private var gameViewModel: TarotGameViewModel
+    
     var body: some View {
         
         ZStack {
             
             VStack {
-                // Players table
                 
-                ScrollView {
-                    VStack {
-                        Spacer(minLength: 10)
-                        
-                        HStack {
-                            ForEach(self.game.players.indices, id: \.self) { pi in
-                                if pi == distributor {
-                                    DistributorIndicator()
-                                } else {
-                                    Spacer()
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .onTapGesture {
-                            switchDistributor()
-                        }
-                        
-                        TarotPlayerScoreTableView(game: self.game) {
-                            cellColumn, cellRow in
-                            showInputGame = true
-                            inputGameIndex = cellRow
-                        }
-                    }
-                }
-                .background {
-                    self.game.color
-                        .onChange(of: self.game.color) { newValue in
-                            print("on changed")
-                        }
-                }
-                .cornerRadius(30)
-                .overlay {
-                    VStack {
-                        Spacer()
-                        HStack {
-                            ColorPicker("", selection: self.$game.color)
-                                .frame(width: 50, height: 50)
-                            Spacer()
-                        }
-                        Spacer()
-                            .frame(height: 10)
-                    }
-                }
+                PlayersHeader()
                 
-                // Add game button
-                HStack {
-                    Spacer()
-                    
-                    Button("Fausse Done") {
-                        self.game.addFausseDonne(forPlayer: self.distributor)
-                        self.switchDistributor()
-                    }
-                    .tarotButton()
-                    
-                    Button("Add game") {
-                        self.showInputGame = true
-                    }
-                    .tarotButton()
-                    
-                }
+                PlayersScoreTable()
+                
+                FooterButtons()
             }
             .padding()
-            .disabled(self.showInputGame)
-            .blur(radius: self.showInputGame ? 5 : 0)
+            .disabled(!self.gameViewModel.isIdlingOnScoreboard)
+            .blur(radius: self.gameViewModel.isIdlingOnScoreboard ? 0 : 5)
             
-            if self.showInputGame {
-                
-                Group {
-                    if let gi = self.inputGameIndex {
-                        TarotAddRoundView(
-                            game: game,
-                            round: game.rounds[gi].round
-                        ) { round in
-                            game.rounds[gi].round = round
-                            game.updateCumulated()
-                            showInputGame = false
-                            inputGameIndex = nil
-                            
-                            Task {
-                                try? await self.gameManager.save(game: game)
-                            }
-                        } cancel: {
-                            showInputGame = false
-                            inputGameIndex = nil
-                        } delete: {
-                            showInputGame = false
-                            inputGameIndex = nil
-                            game.rounds.remove(at: gi)
-                            try? TarotGameManager_LocalFiles().save(game: game)
-                        }
-                    } else {
-                        TarotAddRoundView(game: game) { round in
-                            game.rounds.append((round, []))
-                            game.updateCumulated()
-                            showInputGame = false
-                            inputGameIndex = nil
-                            try? TarotGameManager_LocalFiles().save(game: game)
-                            switchDistributor()
-                        } cancel: {
-                            showInputGame = false
-                            inputGameIndex = nil
-                        }
-                    }
-                }
-                .opacity(0.7)
-                .padding()
-                
+            if self.gameViewModel.isDisplayingRoundInputView {
+                InputRoundView()
             }
             
         }
-        .background(GrassBackground().blur(radius: 1))
+        .background(Background())
         
     }
     
-    
-    @ViewBuilder func DistributorIndicator() -> some View {
-        ZStack {
-            Image(systemName: "arrow.down")
-                .foregroundColor(Color.indigo)
-                .offset(x: 0, y: 10)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: 15))
-                .shadow(radius: 2)
-                .offset(x: 5, y: 1)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: 0))
-                .shadow(radius: 2)
-            Text("🃏")
-                .rotationEffect(Angle(degrees: -15))
-                .shadow(radius: 3)
-                .offset(x: -5, y: 1)
-                .rotation3DEffect(Angle(degrees: 20), axis: (0, 1, 0))
+    // MARK: PlayersHeader
+    @ViewBuilder func PlayersHeader() -> some View {
+        HStack {
+            ForEach(self.game.players.indices, id: \.self) { playerIndex in
+                if playerIndex == self.gameViewModel.distributor {
+                    DistributorIndicator()
+                } else {
+                    Spacer()
+                }
+            }
+            .frame(maxWidth: .infinity)
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10.0)
+                .fill(Color.brown)
+                .shadow(color: .black, radius: 10, x: 2, y: 3)
+        }
+        .background(Color(white: 0.0, opacity: 0.01))
+        .onTapGesture {
+            self.gameViewModel.switchDistributor()
         }
     }
     
-    func switchDistributor() {
-        self.distributor = (self.distributor + 1) % self.game.players.count
+    // MARK: PlayersScoreTable
+    @ViewBuilder func PlayersScoreTable() -> some View {
+        VStack {
+            ScrollView {
+                VStack {
+                    Spacer(minLength: 10)
+                    
+                    TarotPlayerScoreTableView(game: self.game) {
+                        playerIndex, roundIndex in
+                        self.gameViewModel.state = .modifyingRound(roundIndex: roundIndex)
+                    }
+                }
+            }
+            Spacer()
+            
+            AddRoundButtons()
+        }
+        .background {
+            Color.brown
+        }
+        .cornerRadius(30)
+        .shadow(color: .black, radius: 10, x: 4, y: 5)
     }
     
+    // MARK: InputRoundView
+    @ViewBuilder func InputRoundView() -> some View {
+        Group {
+            switch self.gameViewModel.state {
+            case .creatingNewRound:
+                TarotAddRoundView(game: game) { round in
+                    self.gameViewModel.appendRound(round: round)
+                } cancel: {
+                    self.gameViewModel.resetState()
+                }
+            case .modifyingRound(let roundIndex):
+                TarotAddRoundView(
+                    game: self.game,
+                    round: game.rounds[roundIndex].round
+                ) { round in
+                    self.gameViewModel.modifyRound(index: roundIndex, round: round)
+                } cancel: {
+                    self.gameViewModel.resetState()
+                } delete: {
+                    self.gameViewModel.removeRound(index: roundIndex)
+                }
+            default:
+                EmptyView()
+            }
+        }
+        .opacity(0.7)
+        .padding()
+    }
+    
+    // MARK: ButtonsFooter
+    @ViewBuilder func AddRoundButtons() -> some View {
+        HStack {
+            Spacer()
+            
+            Button("Fausse Donne") {
+                self.gameViewModel.appendFausseDone()
+            }
+            .tarotButton()
+            
+            Button("Add game") {
+                self.gameViewModel.state = .creatingNewRound
+            }
+            .tarotButton()
+            
+        }
+    }
+    
+    // MARK: FooterButtons
+    @ViewBuilder func FooterButtons() -> some View {
+        Button("Game Settings") {
+            
+        }
+        .tarotButton()
+        
+        Button("Leave Game") {
+            
+        }
+        .tarotButton()
+    }
+    
+    // MARK: Background
+    @ViewBuilder func Background() -> some View {
+        GrassBackground().blur(radius: 1)
+    }
 }
 
 #Preview {

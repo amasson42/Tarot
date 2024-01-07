@@ -54,10 +54,18 @@ struct JetonsBoardView: View {
                 }
                 
             }
+            
+            HStack {
+                Spacer()
+                VStack {
+                    Spacer()
+                    FullscreenToggleButton()
+                        .padding()
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(GrassBackground())
-        .fullscreenable()
         
     }
 }
