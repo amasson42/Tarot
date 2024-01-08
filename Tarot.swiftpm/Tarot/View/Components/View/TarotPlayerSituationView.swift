@@ -63,7 +63,7 @@ struct DistributorIndicator: View {
     var body: some View {
         ZStack {
             Image(systemName: "arrow.down")
-                .foregroundColor(Color.indigo)
+                .foregroundColor(Color.gray)
                 .offset(x: 0, y: 10)
             Text("🃏")
                 .rotationEffect(Angle(degrees: 15))
@@ -78,6 +78,49 @@ struct DistributorIndicator: View {
                 .offset(x: -5, y: 1)
                 .rotation3DEffect(Angle(degrees: 20), axis: (0, 1, 0))
         }
+    }
+}
+
+struct NewFausseDonneView: View {
+    var body: some View {
+        ZStack {
+            BetFausseDonneView()
+            
+            Image(systemName: "plus")
+                .resizable()
+                .opacity(0.7)
+            
+        }
+        .frame(width: 45, height: 45)
+    }
+}
+
+struct NewRoundView: View {
+    var body: some View {
+        ZStack {
+            Group {
+                Text("🃏")
+                    .rotationEffect(Angle(degrees: 15))
+                    .shadow(radius: 2)
+                    .offset(x: 5, y: 1)
+                Text("🃏")
+                    .rotationEffect(Angle(degrees: 0))
+                    .shadow(radius: 2)
+                Text("🃏")
+                    .rotationEffect(Angle(degrees: -15))
+                    .shadow(radius: 3)
+                    .offset(x: -5, y: 1)
+                    .rotation3DEffect(Angle(degrees: 20), axis: (0, 1, 0))
+                Text("⚔️")
+            }
+            .font(.system(size: 500))
+            .minimumScaleFactor(0.01)
+            
+            Image(systemName: "plus")
+                .resizable()
+                .opacity(0.7)
+        }
+        .frame(width: 45, height: 45)
     }
 }
 
@@ -96,7 +139,7 @@ struct DistributorIndicator: View {
                     TarotGame.ScoreCumul(score: 500, classment: 1, positionChanger: .increase),
                     TarotGame.ScoreCumul(score: 250, classment: 2, positionChanger: .increase),
                     TarotGame.ScoreCumul(score: 0, classment: 3, positionChanger: .stay),
-                    TarotGame.ScoreCumul(score: 250, classment: 4, positionChanger: .decrease),
+                    TarotGame.ScoreCumul(score: -250, classment: 4, positionChanger: .decrease),
                     TarotGame.ScoreCumul(score: -500, classment: 5, positionChanger: .decrease),
                 ], id: \.classment) { cumul in
                     GameCumulView(gameCumul: cumul)

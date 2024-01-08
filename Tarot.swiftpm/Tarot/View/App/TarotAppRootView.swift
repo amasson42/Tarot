@@ -19,7 +19,7 @@ struct TarotAppRootView: View {
                 Spacer()
                 VStack {
                     Spacer()
-                    FullscreenToggleButton()
+                    NavbarToggleButton()
                         .padding()
                 }
             }

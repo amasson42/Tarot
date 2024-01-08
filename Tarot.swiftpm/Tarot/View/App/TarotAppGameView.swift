@@ -110,15 +110,18 @@ struct TarotAppGameView: View {
     // MARK: ButtonsFooter
     @ViewBuilder func AddRoundButtons() -> some View {
         HStack {
-            Spacer()
             
-            Button("Fausse Donne") {
+            Button {
                 self.gameViewModel.appendFausseDone()
+            } label: {
+                NewFausseDonneView()
             }
             .tarotButton()
             
-            Button("Add game") {
+            Button {
                 self.gameViewModel.state = .creatingNewRound
+            } label: {
+                NewRoundView()
             }
             .tarotButton()
             
@@ -127,15 +130,47 @@ struct TarotAppGameView: View {
     
     // MARK: FooterButtons
     @ViewBuilder func FooterButtons() -> some View {
-        Button("Game Settings") {
-            
+        HStack {
+            CloseGameButton()
+            TarotGameSettingsButton(game: self.game)
+            ShareGameButton()
         }
-        .tarotButton()
+    }
+
+    struct CloseGameButton: View {
+        @EnvironmentObject private var appViewModel: TarotAppViewModel
+        @State private var confirmQuitSheet: Bool = false
+
+        var body: some View {
+            Button {
+                confirmQuitSheet = true
+            } label: {
+                Image(systemName: "chevron.backward")
+            }
+            .tarotButton()
+            .confirmationDialog("Sure wanna quit ?", isPresented: $confirmQuitSheet) {
+                Button("Quit Game") {
+                    self.appViewModel.closeGame()
+                }
+            } message: {
+                Text("Sure Sure ?")
+            }
+
+        }
+    }
+
+    struct ShareGameButton: View {
+        @EnvironmentObject private var gameViewModel: TarotGameViewModel
         
-        Button("Leave Game") {
-            
+        var body: some View {
+            Button {
+                
+            } label: {
+                Image(systemName: "square.and.arrow.up")
+            }
+            .tarotButton()
+            .disabled(true)
         }
-        .tarotButton()
     }
     
     // MARK: Background

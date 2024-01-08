@@ -27,11 +27,6 @@ struct BetFausseDonneView: View {
         ZStack {
             Text("🃏")
             Text("❌")
-            VStack {
-                Spacer()
-                Text("Boloss !")
-                    .foregroundColor(.gray)
-            }
         }
         .font(.system(size: 500))
         .minimumScaleFactor(0.01)

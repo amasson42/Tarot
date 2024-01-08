@@ -59,7 +59,7 @@ struct JetonsBoardView: View {
                 Spacer()
                 VStack {
                     Spacer()
-                    FullscreenToggleButton()
+                    NavbarToggleButton()
                         .padding()
                 }
             }

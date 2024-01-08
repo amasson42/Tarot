@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct FullscreenToggleButton: View {
+public struct NavbarToggleButton: View {
     
     @State private var fullScreen = false
     @Namespace private var fullscreenAnimation
@@ -19,9 +19,9 @@ public struct FullscreenToggleButton: View {
             }
         }, label: {
             if fullScreen {
-                Image(systemName: "arrow.down.right.and.arrow.up.left")
+                Image(systemName: "rectangle.arrowtriangle.2.inward")
             } else {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
+                Image(systemName: "rectangle.arrowtriangle.2.outward")
             }
         })
         .matchedGeometryEffect(id: "fullscreenarrows", in: fullscreenAnimation)

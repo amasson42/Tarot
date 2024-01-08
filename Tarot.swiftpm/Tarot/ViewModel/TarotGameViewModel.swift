@@ -26,7 +26,7 @@ class TarotGameViewModel: ObservableObject {
         default: false
         }
     }
-
+    
     init(game: TarotGame, gameManager: any TarotGameManagerProtocol) {
         self.game = game
         self.gameManager = gameManager
@@ -48,7 +48,7 @@ class TarotGameViewModel: ObservableObject {
         self.game.rounds[index].round = round
         self.game.updateCumulated()
         self.resetState()
-
+        
         self.saveGame()
     }
     
@@ -67,7 +67,7 @@ class TarotGameViewModel: ObservableObject {
         self.game.addFausseDonne(forPlayer: self.distributor)
         self.switchDistributor()
     }
-
+    
     func saveGame() {
         Task {
             try? await self.gameManager.save(game: self.game)
