@@ -11,7 +11,3 @@ This Application has purpose of keeping track of games scores.
 TODO:
 - Fix Fausse done review
 - Show bet names before selection
-- Fix "Fausse Donne" Typo
-- Partage de partie
-- Game settings button
-- Close game button

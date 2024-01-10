@@ -36,6 +36,8 @@ struct TarotAppRootView: View {
             }
             .padding()
             
+            Spacer()
+            
             Button {
                 self.appViewModel.createNewGame()
             } label: {

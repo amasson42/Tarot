@@ -19,7 +19,7 @@ struct TarotPlayerScoreTableView: View {
     var body: some View {
         
         LazyVGrid(columns: layout, spacing: 0, pinnedViews: .sectionHeaders) {
-            Section(header: header) {
+            Section(header: HeaderSection) {
                 
                 ForEach(game.rounds.indices, id: \.self) { roundIndex in
                     ForEach(game.players.indices, id: \.self) { playerIndex in
@@ -51,6 +51,13 @@ struct TarotPlayerScoreTableView: View {
                     }
                 }
             }
+        }
+        .background {
+            ZStack {
+                self.game.color
+                Color.brown.opacity(0.5)
+            }
+            .blur(radius: 1)
         }
         
     }
@@ -91,7 +98,7 @@ struct TarotPlayerScoreTableView: View {
         
     }
     
-    @ViewBuilder var header: some View {
+    @ViewBuilder var HeaderSection: some View {
         HStack {
             ForEach(game.players.indices, id: \.self) { playerIndex in
                 Text(game.players[playerIndex])

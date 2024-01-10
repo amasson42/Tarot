@@ -57,9 +57,9 @@ struct TarotAppGameView: View {
     // MARK: PlayersScoreTable
     @ViewBuilder func PlayersScoreTable() -> some View {
         VStack {
+            
             ScrollView {
                 VStack {
-                    Spacer(minLength: 10)
                     
                     TarotPlayerScoreTableView(game: self.game) {
                         playerIndex, roundIndex in
@@ -67,7 +67,9 @@ struct TarotAppGameView: View {
                     }
                 }
             }
-            Spacer()
+            .cornerRadius(20)
+            .padding([.leading, .top, .trailing], 15)
+            
             
             AddRoundButtons()
         }
@@ -136,11 +138,11 @@ struct TarotAppGameView: View {
             ShareGameButton()
         }
     }
-
+    
     struct CloseGameButton: View {
         @EnvironmentObject private var appViewModel: TarotAppViewModel
         @State private var confirmQuitSheet: Bool = false
-
+        
         var body: some View {
             Button {
                 confirmQuitSheet = true
@@ -155,21 +157,49 @@ struct TarotAppGameView: View {
             } message: {
                 Text("Sure Sure ?")
             }
-
+            
         }
     }
-
+    
     struct ShareGameButton: View {
         @EnvironmentObject private var gameViewModel: TarotGameViewModel
         
+        @State private var capturedImage: Image? = nil
+        
         var body: some View {
-            Button {
-                
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-            }
+            ShareItemButton(item: {
+                if #available(iOS 16.0, *) {
+                    return gameToImageWithImageRenderer()
+                } else {
+                    return gameToImageWithGraphicsImageRenderer()
+                }
+            })
             .tarotButton()
-            .disabled(true)
+            
+        }
+        
+        func makeGameView() -> some View {
+            TarotPlayerScoreTableView(game: self.gameViewModel.game)
+                .frame(width: 1200)
+        }
+        
+        @available(iOS 16.0, *)
+        func gameToImageWithImageRenderer() -> UIImage {
+            let renderer = ImageRenderer(content: makeGameView())
+            return renderer.uiImage!
+        }
+        
+        func gameToImageWithGraphicsImageRenderer() -> UIImage {
+            let gameView = makeGameView()
+            let controller = UIHostingController(rootView: gameView)
+            
+            let view = controller.view
+            let targetSize = controller.view.intrinsicContentSize
+            let renderer = UIGraphicsImageRenderer(size: targetSize)
+            let image = renderer.image { _ in
+                view?.drawHierarchy(in: controller.view.bounds, afterScreenUpdates: true)
+            }
+            return image
         }
     }
     
