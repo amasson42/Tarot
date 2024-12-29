@@ -11,3 +11,6 @@ This Application has purpose of keeping track of games scores.
 TODO:
 - Fix Fausse done review
 - Show bet names before selection
+- Create cross-game player interface and link
+- Generic counting in table view with round to commit
+- Recalculate total when deleting game

@@ -55,7 +55,7 @@ class TarotGameViewModel: ObservableObject {
     func removeRound(index: Int) {
         self.resetState()
         game.rounds.remove(at: index)
-        
+        game.updateCumulated()
         self.saveGame()
     }
     
